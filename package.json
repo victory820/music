@@ -11,6 +11,9 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@better-scroll/core": "^2.5.1",
+    "@better-scroll/slide": "^2.5.1",
+    "axios": "^1.6.7",
     "pinia": "^2.1.7",
     "vue": "^3.4.15",
     "vue-router": "^4.2.5"
@@ -22,8 +25,10 @@
     "@vue/eslint-config-prettier": "^8.0.0",
     "eslint": "^8.49.0",
     "eslint-plugin-vue": "^9.17.0",
+    "js-base64": "^3.7.7",
     "less": "^4.2.0",
     "less-loader": "^12.2.0",
+    "pinyin": "4.0.0-alpha.0",
     "prettier": "^3.0.3",
     "vite": "^5.0.11"
   }

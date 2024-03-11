@@ -1,9 +1,10 @@
 import { fileURLToPath, URL } from 'node:url'
-import { resolve } from 'node:path'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+
+import { registerRoutesPlugin } from './backend/middleware'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -19,10 +20,15 @@ export default defineConfig({
   plugins: [
     vue(),
     vueJsx(),
+    // 使用插件形式自定义中间件
+    registerRoutesPlugin
   ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  server: {
+    open: true
   }
 })
