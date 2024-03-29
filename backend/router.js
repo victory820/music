@@ -4,6 +4,8 @@
  */
 
 import axios from 'axios'
+import pinyin from 'pinyin'
+
 // 获取签名
 import getSecuritySign from './sign.cjs'
 
@@ -11,7 +13,8 @@ const ERR_OK = 0
 const token = 5381
 
 // 歌曲图片加载失败时使用的默认图片
-const fallbackPicUrl = 'https://y.gtimg.cn/mediastyle/music_v11/extra/default_300x300.jpg?max_age=31536000'
+// const fallbackPicUrl =
+//   'https://y.gtimg.cn/mediastyle/music_v11/extra/default_300x300.jpg?max_age=31536000'
 
 // 公共参数
 const commonParams = {
@@ -27,16 +30,16 @@ const commonParams = {
 }
 
 // 获取随机数值
-function getRandomVal (prefix = '') {
+function getRandomVal(prefix = '') {
   return prefix + (Math.random() + '').replace('0.', '')
 }
 // 获取随机uid
-function getUid () {
-  const t = (new Date()).getUTCMilliseconds()
-  return '' + Math.round(2147483647 * Math.random()) * t % 1e10
-}
+// function getUid() {
+//   const t = new Date().getUTCMilliseconds()
+//   return '' + ((Math.round(2147483647 * Math.random()) * t) % 1e10)
+// }
 
-function get (url, params) {
+function get(url, params) {
   return axios.get(url, {
     headers: {
       referer: 'https://y.qq.com/',
@@ -46,18 +49,18 @@ function get (url, params) {
   })
 }
 
-function post (url, params) {
-  return axios.post(url, params, {
-    headers: {
-      referer: 'https://y.qq.com/',
-      origin: 'https://y.qq.com/',
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  })
-}
+// function post(url, params) {
+//   return axios.post(url, params, {
+//     headers: {
+//       referer: 'https://y.qq.com/',
+//       origin: 'https://y.qq.com/',
+//       'Content-Type': 'application/x-www-form-urlencoded'
+//     }
+//   })
+// }
 
 // 注册推荐列表接口路由
-function registerRecommend (app) {
+function registerRecommend(app) {
   // 使用use方法
   app.use('/api/getRecommend', (req, res) => {
     // 第三方服务接口 url
@@ -80,7 +83,7 @@ function registerRecommend (app) {
     get(url, {
       sign,
       '-': randomVal,
-      data,
+      data
     }).then((response) => {
       const data = response.data
       if (data.code === ERR_OK) {
@@ -131,8 +134,8 @@ function registerRecommend (app) {
             code: ERR_OK,
             result: {
               sliders,
-              albums,
-            },
+              albums
+            }
           })
         )
       } else {
@@ -141,7 +144,103 @@ function registerRecommend (app) {
     })
   })
 }
+// 注册歌手列表接口
+function registerSingerList(app) {
+  app.use('/api/getSingerList', (req, res) => {
+    const url = 'https://u.y.qq.com/cgi-bin/musics.fcg'
+    const HOT_NAME = '热'
 
-export default function registerRouter (app) {
+    const data = JSON.stringify({
+      comm: { ct: 24, cv: 0 },
+      singerList: {
+        module: 'Music.SingerListServer',
+        method: 'get_singer_list',
+        param: { area: -100, sex: -100, genre: -100, index: -100, sin: 0, cur_page: 1 }
+      }
+    })
+
+    const randomKey = getRandomVal('getUCGI')
+    const sign = getSecuritySign(data)
+
+    get(url, {
+      sign,
+      '-': randomKey,
+      data
+    }).then((response) => {
+      const data = response.data
+      if (data.code === ERR_OK) {
+        const singerList = data.singerList.data.singerlist
+
+        const singerMap = {
+          // 默认前十个是热门
+          hot: {
+            title: HOT_NAME,
+            list: map(singerList.slice(0, 10))
+          }
+        }
+        singerList.forEach((item) => {
+          // 歌手名转拼音
+          const p = pinyin(item.singer_name)
+          if (!p || !p.length) {
+            return
+          }
+          const key = p[0][0].slice(0, 1).toUpperCase()
+          if (key) {
+            if (!singerMap[key]) {
+              singerMap[key] = {
+                title: key,
+                list: []
+              }
+            }
+            // 字母下的歌手
+            singerMap[key].list.push(map([item])[0])
+          }
+        })
+
+        const hot = []
+        const letter = []
+
+        for (const key in singerMap) {
+          const item = singerMap[key]
+          if (item.title.match(/[a-zA-Z]/)) {
+            letter.push(item)
+          } else if (item.title === HOT_NAME) {
+            hot.push(item)
+          }
+          // letter.push(item)
+        }
+
+        letter.sort((a, b) => {
+          return a.title.charCodeAt(0) - b.title.charCodeAt(0)
+        })
+
+        res.end(
+          JSON.stringify({
+            code: ERR_OK,
+            result: {
+              singers: hot.concat(letter)
+            }
+          })
+        )
+      } else {
+        res.end(JSON.stringify(data))
+      }
+    })
+  })
+
+  function map(singerList) {
+    return singerList.map((item) => {
+      return {
+        id: item.singer_id,
+        mid: item.singer_mid,
+        name: item.singer_name,
+        pic: item.singer_pic.replace(/\.webp$/, '.jpg').replace('150x150', '800x800')
+      }
+    })
+  }
+}
+
+export default function registerRouter(app) {
   registerRecommend(app)
+  registerSingerList(app)
 }
