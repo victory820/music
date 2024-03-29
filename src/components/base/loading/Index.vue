@@ -1,5 +1,5 @@
 <template>
-  <div class="loading-box">
+  <div class="loading-box" ref="refLoadingContainer">
     <div class="loading-content">
       <img src="./loading.gif" />
       <p class="desc">{{ text }}</p>
@@ -15,6 +15,7 @@ const setText = (str) => {
   text.value = str
 }
 
+// 需要暴露，不然实例无法调用
 defineExpose({
   setText
 })

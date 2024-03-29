@@ -45,19 +45,20 @@ export default defineComponent({
   data() {
     return {
       sliders: [],
-      albums: [],
-      loading: false
+      albums: []
+    }
+  },
+  computed: {
+    loading() {
+      return !this.sliders.length && !this.albums.length
     }
   },
   methods: {
     async init() {
       try {
-        this.loading = true
         const result = await getRecommend()
-        console.log(result)
         this.sliders = result.sliders
         this.albums = result.albums
-        this.loading = false
       } catch (error) {
         console.log(error)
       }
