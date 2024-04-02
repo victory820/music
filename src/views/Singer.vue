@@ -1,14 +1,26 @@
 <template>
   <div class="singer-box" v-loading="singerList.length === 0">
-    <index-list :singerList="singerList"></index-list>
+    <index-list :singerList="singerList" @select="selectSinger"></index-list>
+    <router-view :singer="singerInfo"></router-view>
   </div>
 </template>
 <script setup>
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import IndexList from '@/components/base/indexList/IndexList.vue'
 
 import { getSingerList } from '@/service/singers'
+
+const router = useRouter()
+
+const singerInfo = ref(null)
+const selectSinger = (singer) => {
+  singerInfo.value = singer
+  router.push({
+    path: `/singer/${singer.mid}`
+  })
+}
 
 const singerList = ref([])
 const getList = async () => {

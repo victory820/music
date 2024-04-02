@@ -12,9 +12,20 @@ const props = defineProps({
   click: {
     type: Boolean,
     default: true
+  },
+  probeType: {
+    type: Number,
+    default: 0
   }
 })
 
+const emit = defineEmits(['scroll'])
+
 const refRoot = ref(null)
-useScroll(refRoot, props)
+
+const scroll = useScroll(refRoot, props, emit)
+// 将实例返回出去
+defineExpose({
+  scroll
+})
 </script>

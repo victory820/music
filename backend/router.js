@@ -6,6 +6,8 @@
 import axios from 'axios'
 import pinyin from 'pinyin'
 
+import querystring from 'node:querystring'
+
 // 获取签名
 import getSecuritySign from './sign.cjs'
 
@@ -13,8 +15,8 @@ const ERR_OK = 0
 const token = 5381
 
 // 歌曲图片加载失败时使用的默认图片
-// const fallbackPicUrl =
-//   'https://y.gtimg.cn/mediastyle/music_v11/extra/default_300x300.jpg?max_age=31536000'
+const fallbackPicUrl =
+  'https://y.gtimg.cn/mediastyle/music_v11/extra/default_300x300.jpg?max_age=31536000'
 
 // 公共参数
 const commonParams = {
@@ -34,10 +36,10 @@ function getRandomVal(prefix = '') {
   return prefix + (Math.random() + '').replace('0.', '')
 }
 // 获取随机uid
-// function getUid() {
-//   const t = new Date().getUTCMilliseconds()
-//   return '' + ((Math.round(2147483647 * Math.random()) * t) % 1e10)
-// }
+function getUid() {
+  const t = new Date().getUTCMilliseconds()
+  return '' + ((Math.round(2147483647 * Math.random()) * t) % 1e10)
+}
 
 function get(url, params) {
   return axios.get(url, {
@@ -49,15 +51,15 @@ function get(url, params) {
   })
 }
 
-// function post(url, params) {
-//   return axios.post(url, params, {
-//     headers: {
-//       referer: 'https://y.qq.com/',
-//       origin: 'https://y.qq.com/',
-//       'Content-Type': 'application/x-www-form-urlencoded'
-//     }
-//   })
-// }
+function post(url, params) {
+  return axios.post(url, params, {
+    headers: {
+      Referer: 'https://y.qq.com/',
+      Origin: 'https://y.qq.com/',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  })
+}
 
 // 注册推荐列表接口路由
 function registerRecommend(app) {
@@ -239,8 +241,180 @@ function registerSingerList(app) {
     })
   }
 }
+// 注册歌手详情接口
+function registerSingerDetail(app) {
+  app.use('/api/getSingerDetail', (req, res) => {
+    const url = 'https://u.y.qq.com/cgi-bin/musics.fcg'
+
+    const mid = getMid(req.url) || ''
+    const data = JSON.stringify({
+      comm: { ct: 24, cv: 0 },
+      singerSongList: {
+        method: 'GetSingerSongList',
+        param: { order: 1, singerMid: mid, begin: 0, num: 100 },
+        module: 'musichall.song_list_server'
+      }
+    })
+    const randomKey = getRandomVal('getSingerSong')
+    const sign = getSecuritySign(data)
+
+    get(url, {
+      sign,
+      '-': randomKey,
+      data
+    }).then((response) => {
+      const data = response.data
+      if (data.code === ERR_OK) {
+        const list = data.singerSongList.data.songList
+        const songList = handleSongList(list)
+        res.end(
+          JSON.stringify({
+            code: ERR_OK,
+            result: {
+              songs: songList
+            }
+          })
+        )
+      } else {
+        res.end(JSON.stringify(data))
+      }
+    })
+  })
+}
+// 歌曲url获取
+function registerSongsUrl(app) {
+  app.use('/api/getSongUrl', (req, res) => {
+    let midStr = getMid(req.url) || ''
+    let mids = []
+    if (midStr) {
+      mids = midStr.split(',')
+    }
+
+    let midGroup = []
+    const maxMidsLen = 100
+    // 最多处理100条，超过后分组请求数据
+    if (mids.length > maxMidsLen) {
+      const groupLen = Math.ceil(mids.length / maxMidsLen)
+      for (let i = 0; i < groupLen; i++) {
+        midGroup.push(mids.slice(i * maxMidsLen, maxMidsLen * (i + 1)))
+      }
+    } else {
+      midGroup = [mids]
+    }
+
+    const urlMap = {}
+
+    function process(mids) {
+      const data = {
+        comm: {
+          format: 'json',
+          platform: 'yqq.json',
+          uin: 0,
+          g_tk: token
+        },
+        req_1: {
+          module: 'vkey.GetVkeyServer',
+          method: 'CgiGetVkey',
+          param: {
+            guid: getUid(),
+            songmid: mids,
+            songtype: new Array(mids.length).fill(0),
+            uin: '0',
+            loginflag: 0,
+            platform: '20'
+          }
+        }
+      }
+      const sign = getSecuritySign(JSON.stringify(data))
+      // 参照此文章https://github.com/ustbhuangyi/vue-music/issues/111
+      // 进入到播放页面，https://y.qq.com/n/ryqq/player查看此接口
+      // 参照post的接口
+      const url = `https://u6.y.qq.com/cgi-bin/musics.fcg?_=${getRandomVal()}&sign=${sign}`
+
+      // 这里要传字符串，所以使用JSON.stringify(data)
+      return post(url, JSON.stringify(data)).then((response) => {
+        const data = response.data
+        if (data.code === ERR_OK) {
+          const midInfo = data.req_1.data.midurlinfo
+          const sip = data.req_1.data.sip
+          const domain = sip[sip.length - 1]
+          midInfo.forEach((info) => {
+            // 获取歌曲的真实播放 URL
+            urlMap[info.songmid] = domain + info.purl
+          })
+        }
+      })
+    }
+    // 构造多个 Promise 请求
+    const requests = midGroup.map((mid) => {
+      return process(mid)
+    })
+
+    // 并行发送多个请求
+    return Promise.all(requests).then(() => {
+      // 所有请求响应完毕，urlMap 也就构造完毕了
+      res.end(
+        JSON.stringify({
+          code: ERR_OK,
+          result: {
+            map: urlMap
+          }
+        })
+      )
+    })
+  })
+}
+
+function getMid(url) {
+  const urlAfter = url.substring(url.indexOf('?') + 1)
+  if (!urlAfter) {
+    return ''
+  }
+  const params = querystring.parse(urlAfter)
+  return params.mid
+}
+function handleSongList(list) {
+  const songList = []
+  list.forEach((item) => {
+    const info = item.songInfo || item
+    if (info.pay.pay_play !== 0 || !info.interval) {
+      // 过滤付费歌曲和获取不到时长的歌曲
+      return
+    }
+
+    const song = {
+      id: info.id,
+      mid: info.mid,
+      name: info.name,
+      singer: mergeSinger(info.singer),
+      url: '', // 在另一个接口获取
+      duration: info.interval,
+      pic: info.album.mid
+        ? `https://y.gtimg.cn/music/photo_new/T002R800x800M000${info.album.mid}.jpg?max_age=2592000`
+        : fallbackPicUrl,
+      album: info.album.name
+    }
+
+    songList.push(song)
+  })
+  return songList
+}
+
+// 合并多个歌手的姓名
+function mergeSinger(singer) {
+  const ret = []
+  if (!singer) {
+    return ''
+  }
+  singer.forEach((s) => {
+    ret.push(s.name)
+  })
+  return ret.join('/')
+}
 
 export default function registerRouter(app) {
   registerRecommend(app)
   registerSingerList(app)
+  registerSingerDetail(app)
+  registerSongsUrl(app)
 }
