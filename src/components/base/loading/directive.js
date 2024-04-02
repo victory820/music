@@ -6,7 +6,7 @@ import { addClass, removeClass } from '@/assets/js/dom'
 const specialClass = 'g-relative'
 
 const loadingDirective = {
-  mounted(el, binding) {
+  mounted (el, binding) {
     // 创建一个vue实例
     const app = createApp(Loading)
     // 挂载到一个新容器上
@@ -23,7 +23,7 @@ const loadingDirective = {
       append(el)
     }
   },
-  updated(el, binding) {
+  updated (el, binding) {
     const { value, oldValue, arg } = binding
     if (typeof arg !== 'undefined') {
       el.instance.setText(arg)
@@ -34,14 +34,14 @@ const loadingDirective = {
   }
 }
 
-function append(el) {
+function append (el) {
   const style = getComputedStyle(el)
   if (['absolute', 'fixed', 'relative'].indexOf(style.position) === -1) {
     addClass(el, specialClass)
   }
   el.appendChild(el.instance.$el)
 }
-function remove(el) {
+function remove (el) {
   removeClass(el, specialClass)
   el.removeChild(el.instance.$el)
 }

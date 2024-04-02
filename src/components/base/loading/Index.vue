@@ -26,12 +26,15 @@ defineExpose({
   left: 50%;
   top: 50%;
   transform: translate3d(-50%, -50%, 0);
+
   .loading-content {
     text-align: center;
+
     img {
       width: 24px;
       height: 24px;
     }
+
     .desc {
       line-height: 20px;
       font-size: @font-size-small;
