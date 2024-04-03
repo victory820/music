@@ -1,9 +1,10 @@
 <template>
   <div class="singer-box" v-loading="singerList.length === 0">
     <index-list :singerList="singerList" @select="selectSinger"></index-list>
-    <router-view v-slot="{ component }">
+    <router-view v-slot="{ Component }">
       <transition appear name="slide">
-        <component :is="component" :singer="singerInfo"></component>
+        <component :is="Component" :singer="singerInfo"></component>
+        <!-- <singer-detail :singer="singerInfo"></singer-detail> -->
       </transition>
     </router-view>
   </div>
@@ -13,6 +14,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import IndexList from '@/components/base/indexList/IndexList.vue'
+// import SingerDetail from './SingerDetail.vue'
 
 import { getSingerList } from '@/service/singers'
 
@@ -21,12 +23,13 @@ import { setSession } from '@/assets/js/storage'
 
 const router = useRouter()
 
-const component = ref('singer-detail')
+const Component = ref('')
 
 const singerInfo = ref(null)
 const selectSinger = (singer) => {
   singerInfo.value = singer
   setSession(SINGER_KEY, singer)
+  Component.value = 'singer-detail'
   router.push({
     path: `/singer/${singer.mid}`
   })
@@ -43,6 +46,7 @@ const getList = async () => {
 }
 
 onMounted(() => {
+  // component.value = 'singer-detail'
   getList()
 })
 </script>
