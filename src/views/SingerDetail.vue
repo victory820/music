@@ -66,9 +66,11 @@ const getDetail = async () => {
 }
 
 onMounted(() => {
+  // 从一级列表过来，或从缓存中可以获取（刷新当前页面）
   if (singerComputed.value) {
     getDetail()
   } else {
+    // 获取不到返回列表页面
     const path = route.matched[0].path
     router.push(path)
   }

@@ -1,10 +1,10 @@
 <template>
   <div class="singer-box" v-loading="singerList.length === 0">
     <index-list :singerList="singerList" @select="selectSinger"></index-list>
+    <!-- 这里Component必须大写，vue-router的规定 -->
     <router-view v-slot="{ Component }">
       <transition appear name="slide">
         <component :is="Component" :singer="singerInfo"></component>
-        <!-- <singer-detail :singer="singerInfo"></singer-detail> -->
       </transition>
     </router-view>
   </div>
@@ -14,7 +14,6 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import IndexList from '@/components/base/indexList/IndexList.vue'
-// import SingerDetail from './SingerDetail.vue'
 
 import { getSingerList } from '@/service/singers'
 
@@ -46,7 +45,6 @@ const getList = async () => {
 }
 
 onMounted(() => {
-  // component.value = 'singer-detail'
   getList()
 })
 </script>
