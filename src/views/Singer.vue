@@ -1,9 +1,8 @@
 <template>
   <div class="singer-box" v-loading="singerList.length === 0">
     <index-list :singerList="singerList" @select="selectSinger"></index-list>
-    <!-- <router-view :singer="singerInfo"></router-view> -->
-    <router-view>
-      <transition name="slide">
+    <router-view v-slot="{ component }">
+      <transition appear name="slide">
         <component :is="component" :singer="singerInfo"></component>
       </transition>
     </router-view>
