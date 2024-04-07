@@ -20,6 +20,12 @@ defineExpose({
   setText
 })
 </script>
+<script>
+export default {
+  // eslint-disable-next-line vue/multi-word-component-names
+  name: 'loading'
+}
+</script>
 <style lang="less" scoped>
 .loading-box {
   position: absolute;
