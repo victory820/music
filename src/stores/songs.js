@@ -58,7 +58,6 @@ export const useStoreSongs = defineStore('songs', {
       )
     },
     randomPlay(list) {
-      console.log('-1-', list)
       this.setPlayingState(true)
       this.setFullScreen(true)
       this.setSequenceList(list)
