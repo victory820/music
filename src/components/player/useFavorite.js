@@ -1,7 +1,9 @@
 import { computed } from 'vue'
 import { useStoreSongs } from '@/stores/songs'
-
+import { FAVORITE_KEY } from '@/assets/js/const'
+import { save, remove } from '@/assets/js/arrayStore'
 export default function useFavorite() {
+  const maxLen = 100
   const storeSongs = useStoreSongs()
 
   const favoriteList = computed(() => storeSongs.favoriteList)
@@ -15,21 +17,25 @@ export default function useFavorite() {
   }
 
   function toggleFavorite(song) {
+    let list
     if (isFavorite(song)) {
-      storeSongs.deleteFavoriteList(song)
+      list = remove(FAVORITE_KEY, compare)
     } else {
-      storeSongs.saveFavoriteList(song)
+      // maxLen超过100条就把第一位移除。
+      list = save(song, FAVORITE_KEY, compare, maxLen)
+    }
+    storeSongs.setFavoriteList(list)
+
+    function compare(item) {
+      return item.id === song.id
     }
   }
   function isFavorite(song) {
-    return (
-      favoriteList.value.findIndex((item) => {
-        return item.id === song.id
-      }) > -1
-    )
+    return favoriteList.value.findIndex((item) => item.id === song.id) > -1
   }
 
   return {
-    getFavoriteIcon
+    getFavoriteIcon,
+    toggleFavorite
   }
 }

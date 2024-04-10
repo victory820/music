@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 
 import { PLAY_MODE } from '@/assets/js/const.js'
 import { shuffle } from '@/assets/js/util'
+import { FAVORITE_KEY } from '@/assets/js/const'
+import { load } from '@/assets/js/arrayStore'
 
 export const useStoreSongs = defineStore('songs', {
   state: () => ({
@@ -11,7 +13,7 @@ export const useStoreSongs = defineStore('songs', {
     playMode: PLAY_MODE.sequence, // 播放模式
     currentIndex: 0, // 当前歌曲索引
     fullScreen: false, // 播放器是否全屏
-    favoriteList: [] // 收藏列表
+    favoriteList: load(FAVORITE_KEY) // 收藏列表
   }),
   getters: {
     currentSong(state) {
@@ -55,7 +57,8 @@ export const useStoreSongs = defineStore('songs', {
         this.playing,
         this.playMode,
         this.currentIndex,
-        this.fullScreen
+        this.fullScreen,
+        this.favoriteList
       )
     },
     randomPlay(list) {
@@ -74,7 +77,8 @@ export const useStoreSongs = defineStore('songs', {
         this.playing,
         this.playMode,
         this.currentIndex,
-        this.fullScreen
+        this.fullScreen,
+        this.favoriteList
       )
     },
     changeMode(mode) {
