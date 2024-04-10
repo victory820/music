@@ -10,7 +10,8 @@ export const useStoreSongs = defineStore('songs', {
     playing: false, // 播放状态
     playMode: PLAY_MODE.sequence, // 播放模式
     currentIndex: 0, // 当前歌曲索引
-    fullScreen: false // 播放器是否全屏
+    fullScreen: false, // 播放器是否全屏
+    favoriteList: [] // 收藏列表
   }),
   getters: {
     currentSong(state) {
@@ -75,6 +76,21 @@ export const useStoreSongs = defineStore('songs', {
         this.currentIndex,
         this.fullScreen
       )
+    },
+    changeMode(mode) {
+      // 更改播放模式
+      const currentId = this.currentSong.id
+      if (mode === PLAY_MODE.random) {
+        this.setPlaylist(shuffle(this.sequenceList))
+      } else {
+        this.setPlaylist(this.sequenceList)
+      }
+      const index = this.playList.findIndex((song) => song.id === currentId)
+      this.setCurrentIndex(index)
+      this.setPlayMode(mode)
+    },
+    setFavoriteList(list) {
+      this.favoriteList = list
     }
   }
 })

@@ -14,15 +14,15 @@
       <div class="bottom">
         <div class="operators">
           <div class="icon i-left">
-            <i class="icon-sequence"></i>
+            <i :class="modeIcon" @click="changeMode"></i>
           </div>
-          <div class="icon i-left">
+          <div class="icon i-left" :class="disableCls">
             <i @click="prev" class="icon-prev"></i>
           </div>
-          <div class="icon i-center">
+          <div class="icon i-center" :class="disableCls">
             <i @click="togglePlayer" :class="playIcon"></i>
           </div>
-          <div class="icon i-right">
+          <div class="icon i-right" :class="disableCls">
             <i @click="next" class="icon-next"></i>
           </div>
           <div class="icon i-right">
@@ -32,14 +32,17 @@
       </div>
     </div>
     <!-- 被动关闭播放器时候处理pause事件 -->
-    <audio ref="refAudio" @pause="pause" @canplay="canplay"></audio>
+    <audio ref="refAudio" @pause="pause" @canplay="canplay" @error="error"></audio>
   </div>
 </template>
 <script setup>
 import { ref, computed, watch } from 'vue'
+
 import { useStoreSongs } from '@/stores/songs'
+import useMode from './useMode'
 
 const storeSongs = useStoreSongs()
+const { modeIcon, changeMode } = useMode()
 
 const refAudio = ref(null)
 const songReady = ref(false)
@@ -53,15 +56,16 @@ const currentIndex = computed(() => storeSongs.currentIndex)
 const playIcon = computed(() => {
   return isPlaying.value ? 'icon-pause' : 'icon-play'
 })
+const disableCls = computed(() => {
+  return !songReady.value ? 'disable' : ''
+})
 
 watch(currentSong, (newSong) => {
   if (!newSong.id || !newSong.url) {
     return
   }
-  if (!songReady.value) {
-    // 歌曲没准备好就不播放
-    return
-  }
+  // 更换歌曲时重置准备状态
+  songReady.value = false
   const audioEl = refAudio.value
   audioEl.src = newSong.url
   audioEl.play()
@@ -80,6 +84,10 @@ watch(isPlaying, (newState) => {
   }
 })
 
+const error = () => {
+  // 出错时可以切换歌曲
+  songReady.value = true
+}
 const canplay = () => {
   if (songReady.value) {
     // 已经准备好了就不需要改变值
@@ -95,8 +103,8 @@ function loop() {
 }
 const prev = () => {
   const tempPlayList = playList.value
-  if (!tempPlayList || tempPlayList.length === 0) {
-    // 没有数据时
+  if (!songReady.value || !tempPlayList || tempPlayList.length === 0) {
+    // 歌曲没有准备好或没有数据时
     return
   }
 
@@ -119,8 +127,8 @@ const prev = () => {
 }
 const next = () => {
   const tempPlayList = playList.value
-  if (!tempPlayList || tempPlayList.length === 0) {
-    // 没有数据时
+  if (!songReady.value || !tempPlayList || tempPlayList.length === 0) {
+    // 歌曲没有准备好或没有数据时
     return
   }
 
@@ -146,6 +154,9 @@ const pause = () => {
   storeSongs.setPlayingState(false)
 }
 const togglePlayer = () => {
+  if (!songReady.value) {
+    return
+  }
   storeSongs.setPlayingState(!isPlaying.value)
 }
 const setSmall = () => {
