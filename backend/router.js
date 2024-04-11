@@ -10,6 +10,7 @@ import querystring from 'node:querystring'
 
 // 获取签名
 import getSecuritySign from './sign.cjs'
+import { Base64 } from 'js-base64'
 
 const ERR_OK = 0
 const token = 5381
@@ -412,9 +413,40 @@ function mergeSinger(singer) {
   return ret.join('/')
 }
 
+function registerLyric(app) {
+  app.use('/api/getLyric', (req, res) => {
+    const url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
+
+    const mid = getMid(req.url) || ''
+    if (mid) {
+      return
+    }
+    get(url, {
+      '-': 'MusicJsonCallback_lrc',
+      pcachetime: +new Date(),
+      songmid: mid,
+      g_tk_new_20200303: token
+    }).then((response) => {
+      const data = response.data
+      if ((data.code = ERR_OK)) {
+        res.end(
+          JSON.stringify({
+            code: ERR_OK,
+            result: {
+              lyric: Base64.decode(data.lyric)
+            }
+          })
+        )
+      } else {
+        res.end(JSON.stringify(data))
+      }
+    })
+  })
+}
 export default function registerRouter(app) {
   registerRecommend(app)
   registerSingerList(app)
   registerSingerDetail(app)
   registerSongsUrl(app)
+  registerLyric(app)
 }
