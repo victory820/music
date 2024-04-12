@@ -12,13 +12,27 @@
         <h2 class="subtitle">{{ currentSong.singer }}</h2>
       </div>
       <div class="middle">
-        <div class="middle-l">
+        <div class="middle-l" v-if="false">
           <div class="cd-wrapper">
             <div class="cd" ref="refCD">
               <img :class="cdCls" ref="refCDImage" class="image" :src="currentSong.pic" alt="" />
             </div>
           </div>
         </div>
+        <scroll class="middle-r" ref="refLyricScroll">
+          <div class="lyric-wrapper">
+            <div v-if="currentLyric" ref="refLyricList">
+              <p
+                class="text"
+                :class="{ current: currentLineNum === index }"
+                v-for="(line, index) in currentLyric.lines"
+                :key="line.num"
+              >
+                {{ line.txt }}
+              </p>
+            </div>
+          </div>
+        </scroll>
       </div>
       <div class="bottom">
         <div class="progress-wrapper">
@@ -66,25 +80,31 @@
 import { ref, computed, watch } from 'vue'
 
 import ProgressBar from './ProgressBar.vue'
+import Scroll from '@/components/base/scroll/Index.vue'
 
 import { useStoreSongs } from '@/stores/songs'
 import useMode from './useMode'
 import useFavorite from './useFavorite'
 import useCD from './useCD'
+import useLyrics from './useLyric'
 
 import { formatTime } from '@/assets/js/util'
 import { PLAY_MODE } from '@/assets/js/const.js'
-
-const storeSongs = useStoreSongs()
-const { modeIcon, changeMode } = useMode()
-const { getFavoriteIcon, toggleFavorite } = useFavorite()
-const { cdCls, refCD, refCDImage } = useCD()
 
 const refAudio = ref(null)
 
 const songReady = ref(false)
 const currentTime = ref(0)
 // const progressChanging = ref(false)
+
+const storeSongs = useStoreSongs()
+const { modeIcon, changeMode } = useMode()
+const { getFavoriteIcon, toggleFavorite } = useFavorite()
+const { cdCls, refCD, refCDImage } = useCD()
+const { currentLyric, currentLineNum, playLyric, refLyricScroll, refLyricList } = useLyrics({
+  songReady,
+  currentTime
+})
 
 const isPlaying = computed(() => storeSongs.playing)
 const fullScreen = computed(() => storeSongs.fullScreen)
@@ -171,6 +191,8 @@ const canplay = () => {
     return
   }
   songReady.value = true
+  // 因为歌曲准备好，和获取歌词都是异步，所以保证两边都触发下播放歌词
+  playLyric()
 }
 
 function loop() {

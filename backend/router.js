@@ -417,18 +417,20 @@ function registerLyric(app) {
   app.use('/api/getLyric', (req, res) => {
     const url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
 
-    const mid = getMid(req.url) || ''
-    if (mid) {
+    let midStr = getMid(req.url) || ''
+    if (!midStr) {
+      console.log('暂无mid')
       return
     }
+
     get(url, {
       '-': 'MusicJsonCallback_lrc',
       pcachetime: +new Date(),
-      songmid: mid,
+      songmid: midStr,
       g_tk_new_20200303: token
     }).then((response) => {
       const data = response.data
-      if ((data.code = ERR_OK)) {
+      if (data.code === ERR_OK) {
         res.end(
           JSON.stringify({
             code: ERR_OK,

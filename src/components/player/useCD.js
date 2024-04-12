@@ -22,11 +22,13 @@ export default function useCD() {
   })
 
   function syncTransform(inner, outer) {
-    const innerTransform = getComputedStyle(inner).transform
-    const outerTransform = getComputedStyle(outer).transform
-    // 如果已有旋转数据，需要叠加原先数据
-    outer.style.transform =
-      outerTransform === 'none' ? innerTransform : innerTransform.concat(' ', outerTransform)
+    if (inner && outer) {
+      const innerTransform = getComputedStyle(inner).transform
+      const outerTransform = getComputedStyle(outer).transform
+      // 如果已有旋转数据，需要叠加原先数据
+      outer.style.transform =
+        outerTransform === 'none' ? innerTransform : innerTransform.concat(' ', outerTransform)
+    }
   }
 
   return {

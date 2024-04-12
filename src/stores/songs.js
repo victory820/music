@@ -95,6 +95,14 @@ export const useStoreSongs = defineStore('songs', {
     },
     setFavoriteList(list) {
       this.favoriteList = list
+    },
+    addSongLyric({ song, lyric }) {
+      this.sequenceList.map((item) => {
+        if (item.mid === song.mid) {
+          item.lyric = lyric
+        }
+        return item
+      })
     }
   }
 })
