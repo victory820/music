@@ -11,15 +11,23 @@
         <h1 class="title">{{ currentSong.name }}</h1>
         <h2 class="subtitle">{{ currentSong.singer }}</h2>
       </div>
-      <div class="middle">
-        <div class="middle-l" v-if="false">
+      <div
+        class="middle"
+        @touchstart="onMiddleTouchStart"
+        @touchmove="onMiddleTouchMove"
+        @touchend="onMiddleTouchEnd"
+      >
+        <div class="middle-l" :style="middleLStyle">
           <div class="cd-wrapper">
             <div class="cd" ref="refCD">
               <img :class="cdCls" ref="refCDImage" class="image" :src="currentSong.pic" alt="" />
             </div>
           </div>
+          <div class="playing-lyric-wrapper">
+            <div class="playing-lyric">{{ playingLyric }}</div>
+          </div>
         </div>
-        <scroll class="middle-r" ref="refLyricScroll">
+        <scroll class="middle-r" :style="middleRStyle" ref="refLyricScroll">
           <div class="lyric-wrapper">
             <div v-if="currentLyric" ref="refLyricList">
               <p
@@ -31,10 +39,17 @@
                 {{ line.txt }}
               </p>
             </div>
+            <div class="pure-music" v-show="pureMusicLyric">
+              <p>{{ pureMusicLyric }}</p>
+            </div>
           </div>
         </scroll>
       </div>
       <div class="bottom">
+        <div class="dot-wrapper">
+          <span class="dot" :class="{ active: currentShow === 'cd' }"></span>
+          <span class="dot" :class="{ active: currentShow === 'lyric' }"></span>
+        </div>
         <div class="progress-wrapper">
           <span class="time time-l">{{ formatTime(currentTime) }}</span>
           <div class="progress-bar-wrapper">
@@ -87,6 +102,7 @@ import useMode from './useMode'
 import useFavorite from './useFavorite'
 import useCD from './useCD'
 import useLyrics from './useLyric'
+import useMiddleInteractive from './useMiddleInteractive'
 
 import { formatTime } from '@/assets/js/util'
 import { PLAY_MODE } from '@/assets/js/const.js'
@@ -101,10 +117,27 @@ const storeSongs = useStoreSongs()
 const { modeIcon, changeMode } = useMode()
 const { getFavoriteIcon, toggleFavorite } = useFavorite()
 const { cdCls, refCD, refCDImage } = useCD()
-const { currentLyric, currentLineNum, playLyric, refLyricScroll, refLyricList } = useLyrics({
+const {
+  currentLyric,
+  currentLineNum,
+  playLyric,
+  stopLyric,
+  refLyricScroll,
+  refLyricList,
+  pureMusicLyric,
+  playingLyric
+} = useLyrics({
   songReady,
   currentTime
 })
+const {
+  currentShow,
+  middleLStyle,
+  middleRStyle,
+  onMiddleTouchStart,
+  onMiddleTouchMove,
+  onMiddleTouchEnd
+} = useMiddleInteractive()
 
 const isPlaying = computed(() => storeSongs.playing)
 const fullScreen = computed(() => storeSongs.fullScreen)
@@ -144,8 +177,10 @@ watch(isPlaying, (newState) => {
   const audioEl = refAudio.value
   if (newState) {
     audioEl.play()
+    playLyric()
   } else {
     audioEl.pause()
+    stopLyric()
   }
 })
 
@@ -153,6 +188,9 @@ const onProgressChanging = (progress) => {
   // progressChanging.value = true
   // currentTime.value = currentSong.value.duration * progress
   refAudio.value.currentTime = currentSong.value.duration * progress
+  // 先播放再暂停
+  playLyric()
+  stopLyric()
 }
 const onProgressChanged = (progress) => {
   // progressChanging.value = false
@@ -161,6 +199,7 @@ const onProgressChanged = (progress) => {
   if (!isPlaying.value) {
     storeSongs.setPlayingState(true)
   }
+  playLyric()
 }
 
 const end = () => {

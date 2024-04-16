@@ -6,15 +6,25 @@ import { getLyric } from '@/service/song'
 export default function useLyrics({ songReady, currentTime }) {
   const storeSongs = useStoreSongs()
 
-  const currentLyric = ref(null)
-  const currentLineNum = ref(0)
   const refLyricScroll = ref(null)
   const refLyricList = ref(null)
+
+  const currentLyric = ref(null)
+  const currentLineNum = ref(0)
+  const pureMusicLyric = ref('')
+  const playingLyric = ref('')
 
   const currentSong = computed(() => storeSongs.currentSong)
 
   watch(currentSong, async (newSong) => {
     if (!newSong.id || !newSong.url) return
+
+    stopLyric()
+    // 来回切换歌词跳动
+    currentLyric.value = null
+    currentLineNum.value = 0
+    pureMusicLyric.value = ''
+    playingLyric.value = ''
 
     const lyric = await getLyric(newSong)
     storeSongs.addSongLyric({ song: newSong, lyric })
@@ -25,8 +35,15 @@ export default function useLyrics({ songReady, currentTime }) {
     }
 
     currentLyric.value = new Lyric(lyric, handleLyric)
-    if (songReady.value) {
-      playLyric()
+    const hasLyrics = currentLyric.value.lines.length
+    if (hasLyrics) {
+      // 有歌词
+      if (songReady.value) {
+        playLyric()
+      }
+    } else {
+      // [00:00:00]该歌曲暂时无法获取歌词
+      playingLyric.value = pureMusicLyric.value = lyric.replace(/\[(\d{2}):(\d{2}):(\d{2})\]/g, '')
     }
   })
 
@@ -37,14 +54,18 @@ export default function useLyrics({ songReady, currentTime }) {
     currentLyric.value && currentLyric.value.stop()
   }
 
-  function handleLyric({ lineNum }) {
+  function handleLyric({ lineNum, txt }) {
     currentLineNum.value = lineNum
+    playingLyric.value = txt
     const lyricScroll = refLyricScroll.value
     const lyricList = refLyricList.value
-    const lyricListChildren = lyricList.children
+    if (!lyricList) {
+      return
+    }
 
     const delta = 5
     if (lineNum > delta) {
+      const lyricListChildren = lyricList.children
       // 超过5行后，滚动。这样高亮就始终在中间
       lyricScroll.scroll.scrollToElement(lyricListChildren[lineNum - delta], 1000)
     } else {
@@ -58,6 +79,8 @@ export default function useLyrics({ songReady, currentTime }) {
     refLyricList,
     currentLyric,
     currentLineNum,
+    pureMusicLyric,
+    playingLyric,
     playLyric,
     stopLyric
   }
