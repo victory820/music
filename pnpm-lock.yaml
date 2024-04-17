@@ -13,6 +13,9 @@ dependencies:
   axios:
     specifier: ^1.6.7
     version: 1.6.7
+  create-keyframe-animation:
+    specifier: ^0.1.0
+    version: 0.1.0
   lyric-parser:
     specifier: ^1.0.1
     version: 1.0.1
@@ -1203,6 +1206,16 @@ packages:
       is-what: 3.14.1
     dev: true
 
+  /create-keyframe-animation@0.1.0:
+    resolution: {integrity: sha1-Brjz4I7PtT+Afu2RBD5cocQNWYc=}
+    dependencies:
+      load-styles: 2.0.0
+      lodash.defaults: 3.1.2
+      native-promisify-if-present: 1.0.1
+      prefixed-event: 1.0.4
+      transform-property: 0.0.1
+    dev: false
+
   /cross-spawn@7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==, tarball: https://registry.npmjs.org/cross-spawn/-/cross-spawn-7.0.3.tgz}
     engines: {node: '>= 8'}
@@ -1710,6 +1723,10 @@ packages:
     dev: true
     optional: true
 
+  /is-function@1.0.2:
+    resolution: {integrity: sha512-lw7DUp0aWXYg+CBCN+JKkcE0Q2RayZnSvnZBlwgxHBQhqt5pZNVy4Ri7H9GmmXkdu7LUthszM+Tor1u/2iBcpQ==}
+    dev: false
+
   /is-glob@4.0.3:
     resolution: {integrity: sha512-xelSayHH36ZgE7ZWhli7pW34hNbNl8Ojv5KVmkJD4hBdD3th8Tfk9vYasLM+mXWOZhFkgZfxhLSnrwRr4elSSg==, tarball: https://registry.npmjs.org/is-glob/-/is-glob-4.0.3.tgz}
     engines: {node: '>=0.10.0'}
@@ -1821,6 +1838,10 @@ packages:
       type-check: 0.4.0
     dev: true
 
+  /load-styles@2.0.0:
+    resolution: {integrity: sha1-oJAcj4DvDIaUVOtYC078LwvkhHE=}
+    dev: false
+
   /locate-path@6.0.0:
     resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==, tarball: https://registry.npmjs.org/locate-path/-/locate-path-6.0.0.tgz}
     engines: {node: '>=10'}
@@ -1828,9 +1849,75 @@ packages:
       p-locate: 5.0.0
     dev: true
 
+  /lodash._baseassign@3.2.0:
+    resolution: {integrity: sha1-jDigmVAPIVrQnlnxci/QxSv+Ck4=}
+    dependencies:
+      lodash._basecopy: 3.0.1
+      lodash.keys: 3.1.2
+    dev: false
+
+  /lodash._basecopy@3.0.1:
+    resolution: {integrity: sha1-jaDmqHbPNEwK2KVIghEd08XHyjY=}
+    dev: false
+
+  /lodash._bindcallback@3.0.1:
+    resolution: {integrity: sha1-5THCdkTPi1epnhftlbNcdIeJOS4=}
+    dev: false
+
+  /lodash._createassigner@3.1.1:
+    resolution: {integrity: sha1-g4pbri/aymOsIt7o4Z+k5taXCxE=}
+    dependencies:
+      lodash._bindcallback: 3.0.1
+      lodash._isiterateecall: 3.0.9
+      lodash.restparam: 3.6.1
+    dev: false
+
+  /lodash._getnative@3.9.1:
+    resolution: {integrity: sha1-VwvH3t5G1hzc3mh9ZdPuy6o6r/U=}
+    dev: false
+
+  /lodash._isiterateecall@3.0.9:
+    resolution: {integrity: sha1-UgOte6Ql+uhCRg5pbbnPPmqsBXw=}
+    dev: false
+
+  /lodash.assign@3.2.0:
+    resolution: {integrity: sha1-POnwI0tLIiPilrj6CsH+6OvKZPo=}
+    dependencies:
+      lodash._baseassign: 3.2.0
+      lodash._createassigner: 3.1.1
+      lodash.keys: 3.1.2
+    dev: false
+
+  /lodash.defaults@3.1.2:
+    resolution: {integrity: sha1-xzCLGNv4vJNy1wGnNJPGEZK9Liw=}
+    dependencies:
+      lodash.assign: 3.2.0
+      lodash.restparam: 3.6.1
+    dev: false
+
+  /lodash.isarguments@3.1.0:
+    resolution: {integrity: sha1-L1c9hcaiQon/AGY7SRwdM4/zRYo=}
+    dev: false
+
+  /lodash.isarray@3.0.4:
+    resolution: {integrity: sha1-eeTriMNqgSKvhvhEqpvNhRtfu1U=}
+    dev: false
+
+  /lodash.keys@3.1.2:
+    resolution: {integrity: sha1-TbwEcrFWvlCgsoaFXRvQsMZWCYo=}
+    dependencies:
+      lodash._getnative: 3.9.1
+      lodash.isarguments: 3.1.0
+      lodash.isarray: 3.0.4
+    dev: false
+
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==, tarball: https://registry.npmjs.org/lodash.merge/-/lodash.merge-4.6.2.tgz}
     dev: true
+
+  /lodash.restparam@3.6.1:
+    resolution: {integrity: sha1-k2pOMJ7zMKdkXtQUWYbIWuWyCAU=}
+    dev: false
 
   /lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==, tarball: https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz}
@@ -1941,6 +2028,12 @@ packages:
     resolution: {integrity: sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==, tarball: https://registry.npmjs.org/nanoid/-/nanoid-3.3.7.tgz}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
+
+  /native-promisify-if-present@1.0.1:
+    resolution: {integrity: sha1-eMebDcOcWpSzrQ9Gd9ZLcXD0guI=}
+    dependencies:
+      is-function: 1.0.2
+    dev: false
 
   /natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==, tarball: https://registry.npmjs.org/natural-compare/-/natural-compare-1.4.0.tgz}
@@ -2136,6 +2229,10 @@ packages:
       nanoid: 3.3.7
       picocolors: 1.0.0
       source-map-js: 1.0.2
+
+  /prefixed-event@1.0.4:
+    resolution: {integrity: sha1-I+klzfsQmq6qQeyR04yRxREEKqc=}
+    dev: false
 
   /prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==, tarball: https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.2.1.tgz}
@@ -2380,6 +2477,10 @@ packages:
     resolution: {integrity: sha1-gYT9NH2snNwYWZLzpmIuFLnZq2o=}
     dev: true
     optional: true
+
+  /transform-property@0.0.1:
+    resolution: {integrity: sha1-SGNmL51eW7jwwAZI7/CL6xT9ZfI=}
+    dev: false
 
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==, tarball: https://registry.npmjs.org/tslib/-/tslib-2.6.2.tgz}

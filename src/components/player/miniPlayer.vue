@@ -1,19 +1,74 @@
 <template>
   <transition name="mini">
-    <div class="mini-player" v-show="!fullScreen">
+    <div class="mini-player" v-show="!fullScreen" @click="showNormalPlayer">
       <div class="cd-wrapper">
-        <div class="cd">
-          <img width="40" height="40" :src="currentSong.pic" alt="" />
+        <div ref="refCD" class="cd">
+          <img
+            ref="refCDImage"
+            :class="cdCls"
+            width="40"
+            height="40"
+            :src="currentSong.pic"
+            alt=""
+          />
         </div>
       </div>
-      <div>
-        <h2 class="name">{{ currentSong.name }}</h2>
-        <h2 class="desc">{{ currentSong.singer }}</h2>
+
+      <div ref="refSliderWrapper" class="slider-wrapper">
+        <div class="slider-group">
+          <div class="slider-page" v-for="song in playlist" :key="song.id">
+            <h2 class="name">{{ song.name }}</h2>
+            <h2 class="desc">{{ song.singer }}</h2>
+          </div>
+        </div>
       </div>
+
+      <div class="control">
+        <progress-circle :radius="32" :progress="progress">
+          <i class="icon-mini" :class="miniPlayIcon" @click.stop="props.togglePlay"></i>
+        </progress-circle>
+      </div>
+
+      <!-- <div class="control" @click.stop="showPlaylist">
+        <i class="icon-playlist"></i>
+      </div> -->
+
+      <!-- <play-list ref="refPlayList"></play-list> -->
     </div>
   </transition>
 </template>
-<script setup></script>
+<script setup>
+import { computed } from 'vue'
+
+import ProgressCircle from '@/components/player/ProgressCircle.vue'
+
+import { useStoreSongs } from '@/stores/songs'
+import useCD from './useCD'
+import useMiniSlider from './useMiniSlider'
+
+const storeSongs = useStoreSongs()
+
+const props = defineProps({
+  progress: {
+    type: Number,
+    default: 0
+  },
+  togglePlay: Function
+})
+
+const { cdCls, refCD, refCDImage } = useCD()
+const { refSliderWrapper } = useMiniSlider()
+
+const fullScreen = computed(() => storeSongs.fullScreen)
+const currentSong = computed(() => storeSongs.currentSong)
+const playing = computed(() => storeSongs.playing)
+const miniPlayIcon = computed(() => (playing.value ? 'icon-pause-mini' : 'icon-play-mini'))
+const playlist = computed(() => storeSongs.playList)
+
+const showNormalPlayer = () => {
+  storeSongs.setFullScreen(true)
+}
+</script>
 <style lang="less" scoped>
 .mini-player {
   display: flex;

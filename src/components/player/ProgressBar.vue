@@ -47,8 +47,7 @@ const progressBtnStyle = computed(() => {
 watch(
   () => props.progress,
   (newProgress) => {
-    const barWidth = refProgressBar.value.clientWidth - PROGRESS_BAR_WIDTH
-    offset.value = barWidth * newProgress
+    setOffset(newProgress)
   }
 )
 
@@ -81,6 +80,15 @@ const clickBar = (e) => {
   const progress = offsetWidth / barWidth
   emits('progressChanged', progress)
 }
+
+const setOffset = (newProgress) => {
+  const barWidth = refProgressBar.value.clientWidth - PROGRESS_BAR_WIDTH
+  offset.value = barWidth * newProgress
+}
+
+defineExpose({
+  setOffset
+})
 </script>
 
 <style lang="less" scoped>
