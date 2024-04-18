@@ -23,7 +23,7 @@ export default function useMiniSlider() {
   onMounted(() => {
     let slideVal = null
     // 因为页面使用v-show所以不一定要展示
-    watch(miniShow.value, async (newShow) => {
+    watch(miniShow, async (newShow) => {
       if (newShow) {
         // 必须等dom渲染后
         await nextTick()
@@ -31,6 +31,7 @@ export default function useMiniSlider() {
         if (!slideVal) {
           // 第一次才初始化
           slideVal = slide.value = new BScroll(refSliderWrapper.value, {
+            click: true,
             scrollX: true,
             scrollY: false,
             momentum: false, // 不生成滚动动画
@@ -42,7 +43,6 @@ export default function useMiniSlider() {
           })
           slideVal.on('slidePageChanged', ({ pageX }) => {
             storeSongs.setCurrentIndex(pageX)
-            // storeSongs.setPlayingState(true)
           })
         } else {
           slideVal.refresh()
@@ -54,6 +54,13 @@ export default function useMiniSlider() {
     watch(currentIndex, (newIndex) => {
       if (slideVal && miniShow.value) {
         slideVal.goToPage(newIndex, 0, 0)
+      }
+    })
+
+    watch(playlist, async (newList) => {
+      if (slideVal && miniShow.value && newList.length) {
+        await nextTick()
+        slideVal.refresh()
       }
     })
   })

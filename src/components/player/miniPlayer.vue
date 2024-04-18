@@ -5,11 +5,11 @@
         <div ref="refCD" class="cd">
           <img
             ref="refCDImage"
-            :class="cdCls"
             width="40"
             height="40"
-            :src="currentSong.pic"
             alt=""
+            :class="cdCls"
+            :src="currentSong.pic"
           />
         </div>
       </div>
@@ -29,18 +29,19 @@
         </progress-circle>
       </div>
 
-      <!-- <div class="control" @click.stop="showPlaylist">
+      <div class="control" @click.stop="showPlaylist">
         <i class="icon-playlist"></i>
-      </div> -->
+      </div>
 
-      <!-- <play-list ref="refPlayList"></play-list> -->
+      <play-list ref="refPlayList"></play-list>
     </div>
   </transition>
 </template>
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 
 import ProgressCircle from '@/components/player/ProgressCircle.vue'
+import PlayList from '@/components/player/PlayList.vue'
 
 import { useStoreSongs } from '@/stores/songs'
 import useCD from './useCD'
@@ -59,6 +60,8 @@ const props = defineProps({
 const { cdCls, refCD, refCDImage } = useCD()
 const { refSliderWrapper } = useMiniSlider()
 
+const refPlayList = ref(null)
+
 const fullScreen = computed(() => storeSongs.fullScreen)
 const currentSong = computed(() => storeSongs.currentSong)
 const playing = computed(() => storeSongs.playing)
@@ -67,6 +70,10 @@ const playlist = computed(() => storeSongs.playList)
 
 const showNormalPlayer = () => {
   storeSongs.setFullScreen(true)
+}
+
+const showPlaylist = () => {
+  refPlayList.value.show()
 }
 </script>
 <style lang="less" scoped>

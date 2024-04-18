@@ -180,6 +180,7 @@ watch(currentSong, (newSong) => {
   const audioEl = refAudio.value
   audioEl.src = newSong.url
   audioEl.play()
+  storeSongs.setPlayingState(true)
 })
 
 watch(isPlaying, (newState) => {
@@ -282,9 +283,6 @@ const prev = () => {
       index = tempPlayList.length - 1
     }
     storeSongs.setCurrentIndex(index)
-    if (!isPlaying.value) {
-      storeSongs.setPlayingState(true)
-    }
   }
 }
 const next = () => {
@@ -306,9 +304,6 @@ const next = () => {
       index = 0
     }
     storeSongs.setCurrentIndex(index)
-    if (!isPlaying.value) {
-      storeSongs.setPlayingState(true)
-    }
   }
 }
 const pause = () => {
