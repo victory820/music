@@ -1,13 +1,13 @@
 <template>
-  <div class="singer-detail">
+  <div class="album">
     <music-list :songs="songs" :title="title" :pic="pic" :loading="loading"></music-list>
   </div>
 </template>
 <script setup>
 import MusicList from '@/components/musicList/MusicList.vue'
 
-import { SINGER_KEY } from '@/assets/js/const'
-import { getSingerDetail } from '@/service/singers'
+import { ALBUM_KEY } from '@/assets/js/const'
+import { getAlbum } from '@/service/recommend'
 
 import useDetailComponent from '@/assets/js/useDetailComponent'
 
@@ -20,10 +20,16 @@ const props = defineProps({
   }
 })
 
-const { title, pic, loading, songs } = useDetailComponent(props, SINGER_KEY, getSingerDetail)
+const { title, pic, loading, songs } = useDetailComponent(props, ALBUM_KEY, getAlbum)
+</script>
+<script>
+import { defineComponent } from 'vue'
+export default defineComponent({
+  name: 'albumPage'
+})
 </script>
 <style lang="less" scoped>
-.singer-detail {
+.album {
   position: fixed;
   z-index: 10;
   top: 0;

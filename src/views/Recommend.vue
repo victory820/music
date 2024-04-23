@@ -13,7 +13,12 @@
           <h1 class="list-title" v-show="!loading">热门歌单推荐</h1>
 
           <ul>
-            <li class="recommend-item" v-for="item in albums" :key="item.id">
+            <li
+              class="recommend-item"
+              v-for="item in albums"
+              :key="item.id"
+              @click="clickItem(item)"
+            >
               <div class="recommend-item-img">
                 <img v-lazy="item.pic" alt="" />
               </div>
@@ -26,49 +31,61 @@
         </div>
       </div>
     </scroll>
+    <!-- 这里Component必须大写，vue-router的规定 -->
+    <router-view v-slot="{ Component }">
+      <transition appear name="slide">
+        <component :is="Component" :data="albumInfo"></component>
+      </transition>
+    </router-view>
   </div>
 </template>
-<script>
-import { defineComponent } from 'vue'
+<script setup>
+// import { defineComponent } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 import Slider from '@/components/base/slider/Index.vue'
-import Scroll from '@/components/base/scroll/Index.vue'
+import Scroll from '@/components/wrapScroll/index'
 
 import { getRecommend } from '@/service/recommend'
+import { ALBUM_KEY } from '@/assets/js/const'
+import { setSession } from '@/assets/js/storage'
 
-export default defineComponent({
-  name: 'recommend-page',
-  components: {
-    Slider,
-    Scroll
-  },
-  data() {
-    return {
-      sliders: [],
-      albums: []
-    }
-  },
-  computed: {
-    loading() {
-      return !this.sliders.length && !this.albums.length
-    }
-  },
-  methods: {
-    async init() {
-      try {
-        const result = await getRecommend()
-        this.sliders = result.sliders
-        this.albums = result.albums
-      } catch (error) {
-        console.log(error)
-      }
-    }
-  },
-  created() {
-    this.init()
+const router = useRouter()
+
+const sliders = ref([])
+const albums = ref([])
+
+const loading = computed(() => {
+  return !sliders.value.length && !albums.value.length
+})
+
+const init = async () => {
+  try {
+    const result = await getRecommend()
+    sliders.value = result.sliders
+    albums.value = result.albums
+  } catch (error) {
+    console.log(error)
   }
+}
+
+const Component = ref('')
+const albumInfo = ref()
+const clickItem = (album) => {
+  albumInfo.value = album
+  setSession(ALBUM_KEY, album)
+  Component.value = 'album-page'
+  router.push({
+    path: `/recommend/${album.id}`
+  })
+}
+
+onMounted(() => {
+  init()
 })
 </script>
+
 <style lang="less" scoped>
 .recommend {
   // 为了做loading的居中

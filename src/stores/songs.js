@@ -103,6 +103,34 @@ export const useStoreSongs = defineStore('songs', {
         }
         return item
       })
+    },
+    removeSong(song) {
+      let currentIndex = this.currentIndex
+      const sqListTemp = this.sequenceList.slice()
+      const pListTemp = this.playList.slice()
+      const sqListIndex = sqListTemp.findIndex((item) => item.id === song.id)
+      const pListIndex = this.playList.findIndex((item) => item.id === song.id)
+      if (pListIndex < 0 || sqListIndex < 0) {
+        return
+      }
+      if (sqListIndex < currentIndex || currentIndex === pListTemp.length - 1) {
+        currentIndex--
+      }
+      sqListTemp.splice(sqListIndex, 1)
+      pListTemp.splice(pListIndex, 1)
+      console.log('currentIndex', currentIndex)
+      this.setSequenceList(sqListTemp)
+      this.setPlaylist(pListTemp)
+      this.setCurrentIndex(currentIndex)
+      if (!this.playList.length) {
+        this.playing = false
+      }
+    },
+    clearSongsList() {
+      this.sequenceList = []
+      this.playList = []
+      this.currentIndex = 0
+      this.playing = false
     }
   }
 })

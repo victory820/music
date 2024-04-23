@@ -7,7 +7,7 @@
             <h1 class="title">
               <i class="icon" :class="modeIcon" @click="changeMode"></i>
               <span class="text">{{ modeText }}</span>
-              <span class="clear">
+              <span class="clear" @click="showConfirm">
                 <i class="icon-clear"></i>
               </span>
             </h1>
@@ -35,6 +35,12 @@
             <span>关闭</span>
           </div>
         </div>
+        <confirm
+          ref="refConfirm"
+          text="是否清空播放列表？"
+          cancelBtnText="清空"
+          @confirm="clearAllSongs"
+        ></confirm>
       </div>
     </transition>
   </teleport>
@@ -43,17 +49,20 @@
 import { ref, computed, nextTick, watch } from 'vue'
 
 import Scroll from '@/components/base/scroll/Index.vue'
+import Confirm from '@/components/base/confirm/Index.vue'
 
 import { useStoreSongs } from '@/stores/songs'
 import useMode from './useMode'
 import useFavorite from './useFavorite'
 
 const storeSongs = useStoreSongs()
-const { modeIcon, modeText, changeMode, removeSong } = useMode()
+const { modeIcon, modeText, changeMode } = useMode()
 const { getFavoriteIcon, toggleFavorite } = useFavorite()
 
 const refScroll = ref(null)
 const refList = ref(null)
+const refConfirm = ref(null)
+
 const visible = ref(false)
 const removing = ref(false)
 
@@ -114,11 +123,21 @@ const delSong = (song) => {
     return
   }
   removing.value = true
-  removeSong(song)
+  storeSongs.removeSong(song)
+  if (!playlist.value.length) {
+    hide()
+  }
   setTimeout(() => {
     // 因为动画是300ms
     removing.value = false
   }, 300)
+}
+const showConfirm = () => {
+  refConfirm.value.show()
+}
+const clearAllSongs = () => {
+  storeSongs.clearSongsList()
+  hide()
 }
 
 defineExpose({ show, hide })

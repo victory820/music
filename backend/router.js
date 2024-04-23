@@ -247,7 +247,7 @@ function registerSingerDetail(app) {
   app.use('/api/getSingerDetail', (req, res) => {
     const url = 'https://u.y.qq.com/cgi-bin/musics.fcg'
 
-    const mid = getMid(req.url) || ''
+    const mid = getUrlParams(req.url) || ''
     const data = JSON.stringify({
       comm: { ct: 24, cv: 0 },
       singerSongList: {
@@ -285,7 +285,7 @@ function registerSingerDetail(app) {
 // 歌曲url获取
 function registerSongsUrl(app) {
   app.use('/api/getSongUrl', (req, res) => {
-    let midStr = getMid(req.url) || ''
+    let midStr = getUrlParams(req.url) || ''
     let mids = []
     if (midStr) {
       mids = midStr.split(',')
@@ -366,13 +366,13 @@ function registerSongsUrl(app) {
   })
 }
 
-function getMid(url) {
+function getUrlParams(url, type = 'mid') {
   const urlAfter = url.substring(url.indexOf('?') + 1)
   if (!urlAfter) {
     return ''
   }
   const params = querystring.parse(urlAfter)
-  return params.mid
+  return params[type]
 }
 function handleSongList(list) {
   const songList = []
@@ -417,7 +417,7 @@ function registerLyric(app) {
   app.use('/api/getLyric', (req, res) => {
     const url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
 
-    let midStr = getMid(req.url) || ''
+    let midStr = getUrlParams(req.url) || ''
     if (!midStr) {
       console.log('暂无mid')
       return
@@ -445,10 +445,61 @@ function registerLyric(app) {
     })
   })
 }
+
+function registerAlbum(app) {
+  app.use('/api/getAlbum', (req, res) => {
+    let idStr = getUrlParams(req.url, 'id') || ''
+    if (!idStr) {
+      console.log('暂无id')
+      return
+    }
+
+    const data = {
+      req_0: {
+        module: 'srf_diss_info.DissInfoServer',
+        method: 'CgiGetDiss',
+        param: {
+          disstid: Number(idStr),
+          onlysonglist: 1,
+          song_begin: 0,
+          song_num: 100
+        }
+      },
+      comm: {
+        g_tk: token,
+        uin: '0',
+        format: 'json',
+        platform: 'h5'
+      }
+    }
+    const sign = getSecuritySign(JSON.stringify(data))
+
+    const url = `https://u.y.qq.com/cgi-bin/musics.fcg?_=${getRandomVal()}&sign=${sign}`
+
+    post(url, JSON.stringify(data)).then((response) => {
+      const data = response.data
+      if (data.code === ERR_OK) {
+        const list = data.req_0.data.songlist
+        const songList = handleSongList(list)
+        res.end(
+          JSON.stringify({
+            code: ERR_OK,
+            result: {
+              songs: songList
+            }
+          })
+        )
+      } else {
+        res.end(JSON.stringify(data))
+      }
+    })
+  })
+}
 export default function registerRouter(app) {
   registerRecommend(app)
   registerSingerList(app)
   registerSingerDetail(app)
   registerSongsUrl(app)
   registerLyric(app)
+  registerAlbum(app)
 }

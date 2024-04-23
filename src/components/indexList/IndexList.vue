@@ -41,7 +41,7 @@
   </scroll>
 </template>
 <script setup>
-import Scroll from '@/components/base/scroll/Index.vue'
+import Scroll from '@/components/wrapScroll/index'
 
 import useFixed from './useFixed'
 import useShortcut from './useShortcut'

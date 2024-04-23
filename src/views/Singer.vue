@@ -4,7 +4,7 @@
     <!-- 这里Component必须大写，vue-router的规定 -->
     <router-view v-slot="{ Component }">
       <transition appear name="slide">
-        <component :is="Component" :singer="singerInfo"></component>
+        <component :is="Component" :data="singerInfo"></component>
       </transition>
     </router-view>
   </div>
@@ -13,7 +13,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import IndexList from '@/components/base/indexList/IndexList.vue'
+import IndexList from '@/components/indexList/IndexList.vue'
 
 import { getSingerList } from '@/service/singers'
 

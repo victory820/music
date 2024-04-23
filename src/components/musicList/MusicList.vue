@@ -32,7 +32,7 @@ import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 import SongList from '@/components/base/songList/SongList.vue'
-import Scroll from '@/components/base/scroll/Index.vue'
+import Scroll from '@/components/wrapScroll/index'
 
 import { useStoreSongs } from '@/stores/songs'
 
@@ -116,8 +116,10 @@ const filterStyle = computed(() => {
 })
 
 const scrollStyle = computed(() => {
+  const bottom = storeSongs.playList.length ? '50px' : '0'
   return {
-    top: `${imgHeight.value}px`
+    top: `${imgHeight.value}px`,
+    bottom
   }
 })
 
