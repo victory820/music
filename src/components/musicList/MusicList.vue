@@ -22,7 +22,7 @@
       @scroll="onScroll"
     >
       <div class="song-list-wrapper">
-        <song-list :songs="songs" @select="selectItem"></song-list>
+        <song-list :showRank="showRank" :songs="songs" @select="selectItem"></song-list>
       </div>
     </scroll>
   </div>
@@ -56,6 +56,10 @@ const props = defineProps({
     default: ''
   },
   loading: {
+    type: Boolean,
+    default: false
+  },
+  showRank: {
     type: Boolean,
     default: false
   }

@@ -62,6 +62,53 @@ function post(url, params) {
   })
 }
 
+function getUrlParams(url) {
+  const urlAfter = url.substring(url.indexOf('?') + 1)
+  if (!urlAfter) {
+    return {}
+  }
+  const params = querystring.parse(urlAfter)
+  return params
+}
+function handleSongList(list) {
+  const songList = []
+  list.forEach((item) => {
+    const info = item.songInfo || item
+    if (info.pay.pay_play !== 0 || !info.interval) {
+      // 过滤付费歌曲和获取不到时长的歌曲
+      return
+    }
+
+    const song = {
+      id: info.id,
+      mid: info.mid,
+      name: info.name,
+      singer: mergeSinger(info.singer),
+      url: '', // 在另一个接口获取
+      duration: info.interval,
+      pic: info.album.mid
+        ? `https://y.gtimg.cn/music/photo_new/T002R800x800M000${info.album.mid}.jpg?max_age=2592000`
+        : fallbackPicUrl,
+      album: info.album.name
+    }
+
+    songList.push(song)
+  })
+  return songList
+}
+
+// 合并多个歌手的姓名
+function mergeSinger(singer) {
+  const ret = []
+  if (!singer) {
+    return ''
+  }
+  singer.forEach((s) => {
+    ret.push(s.name)
+  })
+  return ret.join('/')
+}
+//===============================================interface========================================
 // 注册推荐列表接口路由
 function registerRecommend(app) {
   // 使用use方法
@@ -247,7 +294,7 @@ function registerSingerDetail(app) {
   app.use('/api/getSingerDetail', (req, res) => {
     const url = 'https://u.y.qq.com/cgi-bin/musics.fcg'
 
-    const mid = getUrlParams(req.url) || ''
+    const mid = getUrlParams(req.url).mid || ''
     const data = JSON.stringify({
       comm: { ct: 24, cv: 0 },
       singerSongList: {
@@ -285,7 +332,7 @@ function registerSingerDetail(app) {
 // 歌曲url获取
 function registerSongsUrl(app) {
   app.use('/api/getSongUrl', (req, res) => {
-    let midStr = getUrlParams(req.url) || ''
+    let midStr = getUrlParams(req.url).mid || ''
     let mids = []
     if (midStr) {
       mids = midStr.split(',')
@@ -366,58 +413,11 @@ function registerSongsUrl(app) {
   })
 }
 
-function getUrlParams(url, type = 'mid') {
-  const urlAfter = url.substring(url.indexOf('?') + 1)
-  if (!urlAfter) {
-    return ''
-  }
-  const params = querystring.parse(urlAfter)
-  return params[type]
-}
-function handleSongList(list) {
-  const songList = []
-  list.forEach((item) => {
-    const info = item.songInfo || item
-    if (info.pay.pay_play !== 0 || !info.interval) {
-      // 过滤付费歌曲和获取不到时长的歌曲
-      return
-    }
-
-    const song = {
-      id: info.id,
-      mid: info.mid,
-      name: info.name,
-      singer: mergeSinger(info.singer),
-      url: '', // 在另一个接口获取
-      duration: info.interval,
-      pic: info.album.mid
-        ? `https://y.gtimg.cn/music/photo_new/T002R800x800M000${info.album.mid}.jpg?max_age=2592000`
-        : fallbackPicUrl,
-      album: info.album.name
-    }
-
-    songList.push(song)
-  })
-  return songList
-}
-
-// 合并多个歌手的姓名
-function mergeSinger(singer) {
-  const ret = []
-  if (!singer) {
-    return ''
-  }
-  singer.forEach((s) => {
-    ret.push(s.name)
-  })
-  return ret.join('/')
-}
-
 function registerLyric(app) {
   app.use('/api/getLyric', (req, res) => {
     const url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
 
-    let midStr = getUrlParams(req.url) || ''
+    let midStr = getUrlParams(req.url).mid || ''
     if (!midStr) {
       console.log('暂无mid')
       return
@@ -448,7 +448,7 @@ function registerLyric(app) {
 
 function registerAlbum(app) {
   app.use('/api/getAlbum', (req, res) => {
-    let idStr = getUrlParams(req.url, 'id') || ''
+    let idStr = getUrlParams(req.url).id || ''
     if (!idStr) {
       console.log('暂无id')
       return
@@ -495,6 +495,116 @@ function registerAlbum(app) {
     })
   })
 }
+
+function registerTopList(app) {
+  app.use('/api/getTopList', (req, res) => {
+    const url = 'https://u.y.qq.com/cgi-bin/musics.fcg'
+
+    const data = JSON.stringify({
+      comm: { ct: 24 },
+      toplist: { module: 'musicToplist.ToplistInfoServer', method: 'GetAll', param: {} }
+    })
+
+    const randomKey = getRandomVal('recom')
+    const sign = getSecuritySign(data)
+
+    get(url, {
+      sign,
+      '-': randomKey,
+      data
+    }).then((response) => {
+      const data = response.data
+      if (data.code === ERR_OK) {
+        const topList = []
+        const group = data.toplist.data.group
+
+        group.forEach((item) => {
+          item.toplist.forEach((second) => {
+            topList.push({
+              id: second.topId,
+              pic: second.frontPicUrl,
+              name: second.title,
+              period: second.period,
+              songList: second.song.map((song) => {
+                return {
+                  id: song.songId,
+                  singerName: song.singerName,
+                  songName: song.title
+                }
+              })
+            })
+          })
+        })
+        res.end(
+          JSON.stringify({
+            code: ERR_OK,
+            result: {
+              topList
+            }
+          })
+        )
+      } else {
+        res.end(JSON.stringify(data))
+      }
+    })
+  })
+}
+function registerTopDetail(app) {
+  app.use('/api/getTopDetail', (req, res) => {
+    console.log('----', getUrlParams(req.url))
+
+    const obj = getUrlParams(req.url)
+    const { id, period } = obj
+    if (!id || !period) {
+      console.log('暂无id或period')
+      return
+    }
+    const url = 'https://u.y.qq.com/cgi-bin/musics.fcg'
+    const data = JSON.stringify({
+      detail: {
+        module: 'musicToplist.ToplistInfoServer',
+        method: 'GetDetail',
+        param: {
+          topId: Number(id),
+          offset: 0,
+          num: 100,
+          period
+        }
+      },
+      comm: {
+        ct: 24,
+        cv: 0
+      }
+    })
+
+    const randomKey = getRandomVal('getUCGI')
+    const sign = getSecuritySign(data)
+
+    get(url, {
+      sign,
+      '-': randomKey,
+      data
+    }).then((response) => {
+      const data = response.data
+      if (data.code === ERR_OK) {
+        const list = data.detail.data.songInfoList
+        console.log('----3----', list)
+        const songList = handleSongList(list)
+
+        res.end(
+          JSON.stringify({
+            code: ERR_OK,
+            result: {
+              songs: songList
+            }
+          })
+        )
+      } else {
+        res.end(JSON.stringify(data))
+      }
+    })
+  })
+}
 export default function registerRouter(app) {
   registerRecommend(app)
   registerSingerList(app)
@@ -502,4 +612,6 @@ export default function registerRouter(app) {
   registerSongsUrl(app)
   registerLyric(app)
   registerAlbum(app)
+  registerTopList(app)
+  registerTopDetail(app)
 }
