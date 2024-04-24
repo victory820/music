@@ -11,12 +11,12 @@ import { ref } from 'vue'
 
 const title = ref('暂无数据')
 
-const setTitle = (val) => {
+const setText = (val) => {
   title.value = val
 }
 
 defineExpose({
-  setTitle
+  setText
 })
 </script>
 

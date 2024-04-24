@@ -551,8 +551,6 @@ function registerTopList(app) {
 }
 function registerTopDetail(app) {
   app.use('/api/getTopDetail', (req, res) => {
-    console.log('----', getUrlParams(req.url))
-
     const obj = getUrlParams(req.url)
     const { id, period } = obj
     if (!id || !period) {
@@ -588,7 +586,6 @@ function registerTopDetail(app) {
       const data = response.data
       if (data.code === ERR_OK) {
         const list = data.detail.data.songInfoList
-        console.log('----3----', list)
         const songList = handleSongList(list)
 
         res.end(
@@ -605,6 +602,135 @@ function registerTopDetail(app) {
     })
   })
 }
+
+function registerHotKeys(app) {
+  app.use('/api/getHotKeys', (req, res) => {
+    const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
+
+    const data = {
+      comm: {
+        ct: 24,
+        cv: 0
+      },
+      'tencent_musicsoso_hotkey.HotkeyService.GetHotkeyForQQMusicPC': {
+        method: 'GetHotkeyForQQMusicPC',
+        module: 'tencent_musicsoso_hotkey.HotkeyService',
+        param: {
+          search_id: '',
+          uin: 0
+        }
+      }
+    }
+
+    post(url, JSON.stringify(data)).then((response) => {
+      const data = response.data
+      if (data.code === ERR_OK) {
+        const result = {
+          hotKeys: data[
+            'tencent_musicsoso_hotkey.HotkeyService.GetHotkeyForQQMusicPC'
+          ].data.vec_hotkey
+            .map((key) => {
+              return {
+                key: key.query,
+                id: key.direct_id
+              }
+            })
+            .slice(0, 10)
+        }
+        res.end(
+          JSON.stringify({
+            code: ERR_OK,
+            result
+          })
+        )
+      } else {
+        res.end(JSON.stringify(data))
+      }
+    })
+  })
+}
+function registerSearch(app) {
+  app.use('/api/search', (req, res) => {
+    const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
+
+    const { query, page, showSinger } = getUrlParams(req.url)
+
+    const data = {
+      'music.search.SearchCgiService': {
+        method: 'DoSearchForQQMusicDesktop',
+        module: 'music.search.SearchCgiService',
+        param: {
+          num_per_page: 20,
+          page_num: parseInt(page),
+          query: query,
+          search_type: 0
+        }
+      }
+    }
+
+    post(url, JSON.stringify(data))
+      .then((response) => {
+        const data = response.data
+        if (data.code === ERR_OK) {
+          const songList = []
+          const songData = data['music.search.SearchCgiService'].data.body.song
+          const metaData = data['music.search.SearchCgiService'].data.meta
+          const list = songData.list
+
+          list.forEach((item) => {
+            const info = item
+            if (info.pay.pay_play !== 0 || !info.interval) {
+              // 过滤付费歌曲
+              return
+            }
+
+            const song = {
+              id: info.id,
+              mid: info.mid,
+              name: info.name,
+              singer: mergeSinger(info.singer),
+              url: '',
+              duration: info.interval,
+              pic: info.album.mid
+                ? `https://y.gtimg.cn/music/photo_new/T002R800x800M000${info.album.mid}.jpg?max_age=2592000`
+                : fallbackPicUrl,
+              album: info.album.name
+            }
+            songList.push(song)
+          })
+
+          let singer
+          const zhida = data['music.search.SearchCgiService'].data.body.zhida.list[0]
+          if (showSinger === 'true' && zhida && zhida.type === 1) {
+            singer = {
+              id: zhida.id,
+              mid: zhida.custom_info.mid,
+              name: zhida.title,
+              pic: `https://y.gtimg.cn/music/photo_new/T001R800x800M000${zhida.custom_info.mid}.jpg?max_age=2592000`
+            }
+          }
+
+          const hasMore = metaData.nextpage !== -1
+
+          res.end(
+            JSON.stringify({
+              code: ERR_OK,
+              result: {
+                songs: songList,
+                singer,
+                hasMore
+              }
+            })
+          )
+        } else {
+          res.end(JSON.stringify(data))
+        }
+      })
+      .catch(() => {
+        res.status(500).send()
+      })
+  })
+}
 export default function registerRouter(app) {
   registerRecommend(app)
   registerSingerList(app)
@@ -614,4 +740,6 @@ export default function registerRouter(app) {
   registerAlbum(app)
   registerTopList(app)
   registerTopDetail(app)
+  registerHotKeys(app)
+  registerSearch(app)
 }
