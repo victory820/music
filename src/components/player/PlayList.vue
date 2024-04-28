@@ -31,6 +31,14 @@
               </li>
             </transition-group>
           </scroll>
+
+          <div class="list-add">
+            <div class="add" @click="showAddSong">
+              <i class="icon-add"></i>
+              <span class="text">添加歌曲到队列</span>
+            </div>
+          </div>
+
           <div class="list-footer" @click.stop="hide">
             <span>关闭</span>
           </div>
@@ -41,6 +49,8 @@
           cancelBtnText="清空"
           @confirm="clearAllSongs"
         ></confirm>
+
+        <add-song ref="refAddSong"></add-song>
       </div>
     </transition>
   </teleport>
@@ -50,6 +60,7 @@ import { ref, computed, nextTick, watch } from 'vue'
 
 import Scroll from '@/components/base/scroll/Index.vue'
 import Confirm from '@/components/base/confirm/Index.vue'
+import AddSong from '@/components/addSong/Index.vue'
 
 import { useStoreSongs } from '@/stores/songs'
 import useMode from './useMode'
@@ -62,6 +73,7 @@ const { getFavoriteIcon, toggleFavorite } = useFavorite()
 const refScroll = ref(null)
 const refList = ref(null)
 const refConfirm = ref(null)
+const refAddSong = ref(null)
 
 const visible = ref(false)
 const removing = ref(false)
@@ -138,6 +150,10 @@ const showConfirm = () => {
 const clearAllSongs = () => {
   storeSongs.clearSongsList()
   hide()
+}
+
+const showAddSong = () => {
+  refAddSong.value.show()
 }
 
 defineExpose({ show, hide })

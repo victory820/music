@@ -1,4 +1,4 @@
-import { setLocal, getLocal } from './storage'
+import { setLocal, getLocal, removeLocal } from './storage'
 
 function insertArray(arr, val, compare, maxLen) {
   const index = arr.findIndex(compare)
@@ -35,4 +35,9 @@ export function remove(key, compare) {
 // 从本地获取收藏列表
 export function load(key) {
   return getLocal(key) || []
+}
+
+export function clearLocal(key) {
+  removeLocal(key)
+  return []
 }

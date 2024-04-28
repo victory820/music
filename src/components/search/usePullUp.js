@@ -13,7 +13,6 @@ export default function usePullUp(requestData) {
 
   const initBScroll = () => {
     async function pullingHandler() {
-      console.log('----2222', scroll.value)
       isLoadPull.value = true
       await requestData()
       scroll.value.finishPullUp()
@@ -27,11 +26,7 @@ export default function usePullUp(requestData) {
       click: true
     }))
 
-    console.log('-1-', scrollVal)
     scrollVal.on('pullingUp', pullingHandler)
-    // scrollVal.on('scroll', () => {
-    //   console.log('滚动了====')
-    // })
   }
 
   onMounted(() => {

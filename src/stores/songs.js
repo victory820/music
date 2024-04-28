@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 import { PLAY_MODE } from '@/assets/js/const.js'
 import { shuffle } from '@/assets/js/util'
-import { FAVORITE_KEY } from '@/assets/js/const'
+import { FAVORITE_KEY, SEARCH_KEY } from '@/assets/js/const'
 import { load } from '@/assets/js/arrayStore'
 
 export const useStoreSongs = defineStore('songs', {
@@ -13,7 +13,8 @@ export const useStoreSongs = defineStore('songs', {
     playMode: PLAY_MODE.sequence, // 播放模式
     currentIndex: 0, // 当前歌曲索引
     fullScreen: false, // 播放器是否全屏
-    favoriteList: load(FAVORITE_KEY) // 收藏列表
+    favoriteList: load(FAVORITE_KEY), // 收藏列表
+    searchHistory: load(SEARCH_KEY) // 搜索历史
   }),
   getters: {
     currentSong(state) {
@@ -131,6 +132,32 @@ export const useStoreSongs = defineStore('songs', {
       this.playList = []
       this.currentIndex = 0
       this.playing = false
+    },
+    addSong(song) {
+      const sqList = this.sequenceList.slice()
+      const pList = this.playList.slice()
+      let currentIndex = this.currentIndex
+      const pIndex = pList.findIndex((item) => item.id === song.id)
+
+      if (pIndex > -1) {
+        currentIndex = pIndex
+      } else {
+        pList.push(song)
+        currentIndex = pList.length - 1
+      }
+
+      const sqIndex = sqList.findIndex((item) => item.id === song.id)
+      if (sqIndex === -1) {
+        sqList.push(song)
+      }
+      this.setSequenceList(sqList)
+      this.setPlaylist(pList)
+      this.setCurrentIndex(currentIndex)
+      this.setPlayingState(true)
+      this.setFullScreen(true)
+    },
+    setSearchHistory(history) {
+      this.searchHistory = history
     }
   }
 })

@@ -6,7 +6,7 @@
     v-no-result:[loadingResult]="noResult"
   >
     <ul class="suggest-list">
-      <li class="suggest-item" v-if="singer">
+      <li class="suggest-item" v-if="singer" @click="selectedSinger(singer)">
         <div class="icon">
           <i class="icon-mine"></i>
         </div>
@@ -14,7 +14,7 @@
           <p class="text">{{ singer.name }}</p>
         </div>
       </li>
-      <li class="suggest-item" v-for="song in songs" :key="song.id">
+      <li class="suggest-item" v-for="song in songs" :key="song.id" @click="selectedSong(song)">
         <div class="icon">
           <i class="icon-music"></i>
         </div>
@@ -27,13 +27,13 @@
   </div>
 </template>
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, nextTick } from 'vue'
 import { getSearch } from '@/service/search'
 import { processSongs } from '@/service/song'
 
 import usePullUp from '@/components/search/usePullUp'
 
-const { refRoot, isLoadPull } = usePullUp(searchMore)
+const { refRoot, isLoadPull, scroll } = usePullUp(queryMore)
 
 const props = defineProps({
   query: {
@@ -45,6 +45,8 @@ const props = defineProps({
     default: true
   }
 })
+
+const emits = defineEmits(['selectSong', 'selectSinger'])
 
 const singer = ref(null)
 const songs = ref([])
@@ -68,6 +70,10 @@ const pullupLoading = computed(() => {
 watch(
   () => props.query,
   async (newQuery) => {
+    console.log('搜索词改变', newQuery)
+    // 延迟刷新下，否则无法触发滚动
+    await nextTick()
+    scroll.value.refresh()
     if (!newQuery) {
       return
     }
@@ -90,12 +96,14 @@ const queryFirst = async () => {
 
     hasMore.value = result.hasMore
     singer.value = result.singer
+    // await nextTick()
+    await whileSearch()
   } catch (error) {
     console.log(error)
   }
 }
-async function searchMore() {
-  console.log('---', hasMore.value)
+async function queryMore() {
+  console.log('-hasMore-', hasMore.value)
   if (!hasMore.value || !props.query) {
     return
   }
@@ -106,9 +114,27 @@ async function searchMore() {
     songs.value = songs.value.concat(await processSongs(result.songs))
 
     hasMore.value = result.hasMore
+    // await nextTick()
+    await whileSearch()
   } catch (error) {
     console.log(error)
   }
+}
+
+async function whileSearch() {
+  // TODO没有实现自动充满一屏幕 当滚动请求出来的数据超过一屏时，不在请求
+  console.log('--scroll.value.maxScrollY--', scroll.value.maxScrollY)
+  if (scroll.value.maxScrollY >= -1) {
+    // await nextTick()
+    // await queryMore()
+  }
+}
+
+const selectedSong = (song) => {
+  emits('selectSong', song)
+}
+const selectedSinger = (singer) => {
+  emits('selectSinger', singer)
 }
 </script>
 
