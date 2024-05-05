@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const ERR_OK = 0
-const baseURL = '/'
+const baseURL = process.env.PROD ? 'http://www.nanguan.top/project/music/' : '/'
 
 axios.defaults.baseURL = baseURL
 
