@@ -6,7 +6,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import useScroll from './use-scroll'
+import useScroll from './useScroll'
 
 const props = defineProps({
   click: {
@@ -29,3 +29,4 @@ defineExpose({
   scroll
 })
 </script>
+./useScroll

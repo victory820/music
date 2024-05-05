@@ -103,7 +103,6 @@ const queryFirst = async () => {
   }
 }
 async function queryMore() {
-  console.log('-hasMore-', hasMore.value)
   if (!hasMore.value || !props.query) {
     return
   }

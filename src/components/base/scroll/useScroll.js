@@ -1,6 +1,6 @@
 import BScroll from '@better-scroll/core'
 import ObserveDOM from '@better-scroll/observe-dom'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, onActivated, onDeactivated } from 'vue'
 
 BScroll.use(ObserveDOM)
 export default function useScroll(wrapper, options, emit) {
@@ -19,6 +19,14 @@ export default function useScroll(wrapper, options, emit) {
 
   onUnmounted(() => {
     box.value.destroy()
+  })
+
+  onActivated(() => {
+    box.value.enable()
+    box.value.refresh()
+  })
+  onDeactivated(() => {
+    box.value.disable()
   })
 
   // 将实例返回出去

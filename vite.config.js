@@ -8,6 +8,8 @@ import { registerRoutesPlugin } from './backend/middleware'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  envDir: './env',
+  base: process.env.BASE_URL || './',
   css: {
     preprocessorOptions: {
       less: {
@@ -15,7 +17,7 @@ export default defineConfig({
         javascriptEnabled: true,
         additionalData: `@import "@/assets/styles/variable.less";@import "@/assets/styles/mixin.less";`
       }
-    },
+    }
   },
   plugins: [
     vue(),
@@ -30,5 +32,21 @@ export default defineConfig({
   },
   server: {
     open: true
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'recommend-page': ['@/views/Recommend.vue'],
+          'singer-page': ['@/views/Singer.vue'],
+          'singer-detail-page': ['@/views/SingerDetail.vue'],
+          'top-list-page': ['@/views/TopList.vue'],
+          'top-detail-page': ['@/views/TopDetail.vue'],
+          'search-page': ['@/views/Search.vue'],
+          'album-detail-page': ['@/views/Album.vue'],
+          'user-center-page': ['@/views/UserCenter.vue']
+        }
+      }
+    }
   }
 })

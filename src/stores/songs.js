@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 import { PLAY_MODE } from '@/assets/js/const.js'
 import { shuffle } from '@/assets/js/util'
-import { FAVORITE_KEY, SEARCH_KEY } from '@/assets/js/const'
+import { SEARCH_KEY } from '@/assets/js/const'
 import { load } from '@/assets/js/arrayStore'
 
 export const useStoreSongs = defineStore('songs', {
@@ -13,8 +13,9 @@ export const useStoreSongs = defineStore('songs', {
     playMode: PLAY_MODE.sequence, // 播放模式
     currentIndex: 0, // 当前歌曲索引
     fullScreen: false, // 播放器是否全屏
-    favoriteList: load(FAVORITE_KEY), // 收藏列表
-    searchHistory: load(SEARCH_KEY) // 搜索历史
+    favoriteList: [], // 收藏列表
+    searchHistory: load(SEARCH_KEY), // 搜索历史
+    playHistory: [] // 播放历史
   }),
   getters: {
     currentSong(state) {
@@ -158,6 +159,9 @@ export const useStoreSongs = defineStore('songs', {
     },
     setSearchHistory(history) {
       this.searchHistory = history
+    },
+    setPlayHistory(history) {
+      this.playHistory = history
     }
   }
 })

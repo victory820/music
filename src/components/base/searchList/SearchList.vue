@@ -3,7 +3,7 @@
     <transition-group name="list" tag="ul">
       <li class="search-item" :key="item" v-for="item in searches" @click="selectItem(item)">
         <span class="text">{{ item }}</span>
-        <span class="icon" @click.stop="deleteItem(item)">
+        <span class="icon" @click.stop="deleteItem(item)" v-if="showDelete">
           <i class="icon-delete"></i>
         </span>
       </li>
@@ -16,6 +16,10 @@ defineProps({
   searches: {
     type: Array,
     default: () => []
+  },
+  showDelete: {
+    type: Boolean,
+    default: true
   }
 })
 const emits = defineEmits(['select', 'delete'])

@@ -16,25 +16,35 @@
           <div class="list-wrapper">
             <scroll v-if="currentIndex === 0" class="list-scroll" ref="refScroll">
               <div class="list-inner">
-                <song-list :songs="playHistory"></song-list>
+                <song-list :songs="playHistory" @select="addSong"></song-list>
               </div>
             </scroll>
             <scroll v-if="currentIndex === 1" class="list-scroll" ref="refScroll">
               <div class="list-inner">
-                <search-list :searches="searchHistory" :show-delete="false"></search-list>
+                <search-list
+                  :searches="searchHistory"
+                  :show-delete="false"
+                  @select="addQuery"
+                ></search-list>
               </div>
             </scroll>
           </div>
         </div>
         <div class="search-result" v-show="query">
-          <suggest :query="query" :show-singer="false"></suggest>
+          <suggest :query="query" :show-singer="false" @selectSong="addSongBySuggest"></suggest>
         </div>
+        <message ref="refMessage">
+          <div class="message-title">
+            <i class="icon-ok"></i>
+            <span class="text">歌曲已经添加到播放列表</span>
+          </div>
+        </message>
       </div>
     </transition>
   </teleport>
 </template>
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, nextTick, watch } from 'vue'
 
 import SearchInput from '@/components/search/InputSearch.vue'
 import Suggest from '@/components/search/Suggest.vue'
@@ -42,18 +52,55 @@ import Scroll from '@/components/base/scroll/Index.vue'
 import SongList from '@/components/base/songList/SongList.vue'
 import SearchList from '@/components/base/searchList/SearchList.vue'
 import Switches from '@/components/base/switch/Switch.vue'
+import Message from '@/components/base/message/Message.vue'
+
+import useSearchHistory from '@/components/search/useSearchHistory'
+
+import { useStoreSongs } from '@/stores/songs'
+
+const storeSongs = useStoreSongs()
+const { saveSearch } = useSearchHistory()
 
 const refScroll = ref(null)
+const refMessage = ref(null)
 
 const visible = ref(false)
 const query = ref('')
 const currentIndex = ref(0)
 
-const playHistory = ref([])
-const searchHistory = ref([])
+const playHistory = computed(() => {
+  return storeSongs.playHistory
+})
+const searchHistory = computed(() => {
+  return storeSongs.searchHistory
+})
+watch(query, async () => {
+  await nextTick()
+  refreshScroll()
+})
 
-const show = () => {
+const addQuery = (s) => {
+  query.value = s
+}
+const addSong = async ({ song }) => {
+  storeSongs.addSong(song)
+  await nextTick()
+  refreshScroll()
+  refMessage.value.show()
+}
+const addSongBySuggest = (song) => {
+  storeSongs.addSong(song)
+  saveSearch(query.value)
+  refMessage.value.show()
+}
+
+const refreshScroll = () => {
+  refScroll.value.scroll.refresh()
+}
+const show = async () => {
   visible.value = true
+  await nextTick()
+  refreshScroll()
 }
 const hide = () => {
   visible.value = false

@@ -1,4 +1,13 @@
-import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import {
+  ref,
+  computed,
+  watch,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  onActivated,
+  onDeactivated
+} from 'vue'
 import BScroll from '@better-scroll/core'
 import Slide from '@better-scroll/slide'
 
@@ -68,6 +77,18 @@ export default function useMiniSlider() {
   onUnmounted(() => {
     if (slide.value) {
       slide.value.destroy()
+    }
+  })
+
+  onActivated(() => {
+    if (slide.value) {
+      slide.value.enable()
+      slide.value.refresh()
+    }
+  })
+  onDeactivated(() => {
+    if (slide.value) {
+      slide.value.disable()
     }
   })
 

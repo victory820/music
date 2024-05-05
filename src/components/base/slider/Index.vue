@@ -1,24 +1,27 @@
 <template>
   <div class="slider" ref="refSlide">
-
     <div class="slide-group">
       <div class="slide-page" v-for="item in props.sliders" :key="item.id">
-        <a :href="item.link">
-          <img :src="item.pic">
+        <!-- <a :href="item.link"> -->
+        <a href="javascript:void(0)">
+          <img :src="item.pic" />
         </a>
       </div>
     </div>
 
     <div class="dots-wrapper">
-      <span class="dot" v-for="(item, index) in props.sliders" :key="item.id"
-        :class="{ 'active': currentPageIndex === index }"></span>
+      <span
+        class="dot"
+        v-for="(item, index) in props.sliders"
+        :key="item.id"
+        :class="{ active: currentPageIndex === index }"
+      ></span>
     </div>
-
   </div>
 </template>
 <script setup>
 import { ref } from 'vue'
-import { useSlider } from '@/components/base/slider/use-slider'
+import { useSlider } from '@/components/base/slider/useSlider'
 
 const props = defineProps({
   sliders: {
@@ -30,7 +33,6 @@ const props = defineProps({
 const refSlide = ref()
 
 const { currentPageIndex } = useSlider(refSlide)
-
 </script>
 <script>
 export default {
@@ -94,3 +96,4 @@ export default {
   }
 }
 </style>
+@/components/base/slider/useSlider

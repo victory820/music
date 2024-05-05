@@ -109,6 +109,7 @@ import Scroll from '@/components/base/scroll/Index.vue'
 import MiniPlayer from '@/components/player/MiniPlayer.vue'
 
 import { useStoreSongs } from '@/stores/songs'
+import usePlayHistory from '@/components/player/usePlayHistory'
 import useMode from './useMode'
 import useFavorite from './useFavorite'
 import useCD from './useCD'
@@ -151,6 +152,7 @@ const {
   onMiddleTouchEnd
 } = useMiddleInteractive()
 const { refCDWrapper, enter, afterEnter, leave, afterLeave } = useAnimation(refCD)
+const { savePlay } = usePlayHistory()
 
 const isPlaying = computed(() => storeSongs.playing)
 const fullScreen = computed(() => storeSongs.fullScreen)
@@ -254,6 +256,7 @@ const canplay = () => {
   songReady.value = true
   // 因为歌曲准备好，和获取歌词都是异步，所以保证两边都触发下播放歌词
   playLyric()
+  savePlay(currentSong.value)
 }
 
 function loop() {

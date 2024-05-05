@@ -4,7 +4,7 @@
       class="switch-item"
       v-for="(item, index) in items"
       :key="item"
-      :class="{ active: modeValue === index }"
+      :class="{ active: modelValue === index }"
       @click="switchItem(index)"
     >
       <span>{{ item }}</span>
@@ -20,22 +20,23 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  modeValue: {
+  modelValue: {
     type: Number,
     default: 0
   }
 })
 
 const activeStyle = computed(() => {
-  const x = 120 * props.modeValue
+  const x = 120 * props.modelValue
   return {
     transform: `translate3d(${x}px, 0, 0)`
   }
 })
-const emits = defineEmits(['update:modeValue'])
+const emits = defineEmits(['update:modelValue'])
 
 const switchItem = (index) => {
-  emits('update:modeValue', index)
+  console.log('点击==', index)
+  emits('update:modelValue', index)
 }
 </script>
 <style lang="less" scoped>
