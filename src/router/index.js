@@ -10,7 +10,7 @@ const TopDetail = () => import('@/views/TopDetail.vue')
 const UserCenter = () => import('@/views/UserCenter.vue')
 
 const router = createRouter({
-  history: createWebHashHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(process.env.NODE_ENV === 'production' ? '/music/' : '/'),
   routes: [
     {
       path: '/',
