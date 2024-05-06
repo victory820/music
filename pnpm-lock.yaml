@@ -54,6 +54,9 @@ devDependencies:
   compression:
     specifier: ^1.7.4
     version: 1.7.4
+  cookie-parser:
+    specifier: ^1.4.6
+    version: registry.npmjs.org/cookie-parser@1.4.6
   eslint:
     specifier: ^8.49.0
     version: 8.57.0
@@ -3156,6 +3159,16 @@ packages:
     dev: true
     optional: true
 
+  registry.npmjs.org/cookie-parser@1.4.6:
+    resolution: {integrity: sha512-z3IzaNjdwUC2olLIB5/ITd0/setiaFMLYiZJle7xg5Fe9KWAceil7xszYfHHBtDFYLSgJduS2Ty0P1uJdPDJeA==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/cookie-parser/-/cookie-parser-1.4.6.tgz}
+    name: cookie-parser
+    version: 1.4.6
+    engines: {node: '>= 0.8.0'}
+    dependencies:
+      cookie: registry.npmjs.org/cookie@0.4.1
+      cookie-signature: registry.npmjs.org/cookie-signature@1.0.6
+    dev: true
+
   registry.npmjs.org/cookie-signature@1.0.6:
     resolution: {integrity: sha512-QADzlaHc8icV8I7vbaJXJwod9HWYp8uCqf1xa4OfNu1T7JVxQIrUgOWtHdNDtPiywmFbiS12VjotIXLrKM3orQ==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/cookie-signature/-/cookie-signature-1.0.6.tgz}
     name: cookie-signature
@@ -3166,6 +3179,13 @@ packages:
     resolution: {integrity: sha512-+Hp8fLp57wnUSt0tY0tHEXh4voZRDnoIrZPqlo3DPiI4y9lwg/jqx+1Om94/W6ZaPDOUbnjOt/99w66zk+l1Xg==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/cookie/-/cookie-0.4.0.tgz}
     name: cookie
     version: 0.4.0
+    engines: {node: '>= 0.6'}
+    dev: true
+
+  registry.npmjs.org/cookie@0.4.1:
+    resolution: {integrity: sha512-ZwrFkGJxUR3EIoXtO+yVE69Eb7KlixbaeAWfBQB9vVsNn/o+Yw69gBWSSDK825hQNdN+wF8zELf3dFNl/kxkUA==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/cookie/-/cookie-0.4.1.tgz}
+    name: cookie
+    version: 0.4.1
     engines: {node: '>= 0.6'}
     dev: true
 

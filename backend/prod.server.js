@@ -1,8 +1,9 @@
-const express = require('express')
-const compression = require('compression')
-const cookieParser = require('cookie-parser')
-const csrf = require('xsrf')
-const registerRouter = require('./router')
+import express from 'express'
+import compression from 'compression'
+import cookieParser from 'cookie-parser'
+import csrf from 'xsrf'
+
+import registerRouter from './router.js'
 
 const port = process.env.PORT || 9002
 
@@ -25,7 +26,7 @@ registerRouter(app)
 
 app.use(compression())
 
-app.use(express.static('./dist'))
+app.use(express.static('../dist'))
 
 app.use(function (err, req, res, next) {
   if (err.code !== 'EBADCSRFTOKEN') {
@@ -37,7 +38,7 @@ app.use(function (err, req, res, next) {
   res.send('<p>接口已被保护</p>')
 })
 
-module.exports = app.listen(port, function (err) {
+app.listen(port, function (err) {
   if (err) {
     console.log(err)
     return
