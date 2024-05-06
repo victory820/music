@@ -9,7 +9,7 @@ import { registerRoutesPlugin } from './backend/middleware'
 // https://vitejs.dev/config/
 export default defineConfig({
   envDir: './env',
-  base: process.env.BASE_URL || './',
+  base: process.env.NODE_ENV === 'production' ? '/music/' : '/',
   css: {
     preprocessorOptions: {
       less: {
@@ -34,6 +34,7 @@ export default defineConfig({
     open: true
   },
   build: {
+    assetsDir: 'static',
     rollupOptions: {
       output: {
         manualChunks: {
