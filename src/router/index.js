@@ -9,8 +9,14 @@ const AlbumDetail = () => import('@/views/Album.vue')
 const TopDetail = () => import('@/views/TopDetail.vue')
 const UserCenter = () => import('@/views/UserCenter.vue')
 
+console.log(import.meta.env.MODE)
+console.log(import.meta.env.BASE_URL)
+console.log(import.meta.env.PROD)
+console.log(import.meta.env.DEV)
+console.log(import.meta.env.SSR)
+
 const router = createRouter({
-  history: createWebHashHistory(process.env.NODE_ENV === 'production' ? '/music/' : '/'),
+  history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',

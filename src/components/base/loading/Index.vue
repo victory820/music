@@ -7,7 +7,7 @@
   </div>
 </template>
 <script setup>
-import { ref, defineExpose } from 'vue'
+import { ref } from 'vue'
 
 const text = ref('正在载入...')
 

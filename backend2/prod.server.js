@@ -1,13 +1,13 @@
-import express from 'express'
-import compression from 'compression'
-import cookieParser from 'cookie-parser'
-import csrf from 'xsrf'
-
-import registerRouter from './router.js'
+const express = require('express')
+const compression = require('compression')
+const cookieParser = require('cookie-parser')
+const csrf = require('xsrf')
+const registerRouter = require('./router')
 
 const port = process.env.PORT || 9002
 
 const app = express()
+
 const csrfProtection = csrf({
   cookie: true,
   ignoreMethods: ['HEAD', 'OPTIONS'],
@@ -34,10 +34,10 @@ app.use(function (err, req, res, next) {
 
   // handle CSRF token errors here
   res.status(403)
-  res.send('<p>接口已被保护</p>')
+  res.send('<p>接口已经被我用 CSRF 保护了</p>')
 })
 
-app.listen(port, function (err) {
+module.exports = app.listen(port, function (err) {
   if (err) {
     console.log(err)
     return

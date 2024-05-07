@@ -1,17 +1,17 @@
 import express from 'express'
 import registerRouter from './router'
 
-async function createServer () {
-  console.log('creating....')
+async function createServer() {
+  const port = 5173
   const app = express()
   registerRouter(app)
 
-  app.listen(5173, function (err) {
+  app.listen(port, function (err) {
     if (err) {
       console.log(err)
       return
     }
-    console.log('Listening at http://localhost:5173' + '\n')
+    console.log(`Listening at http://localhost:${port} \n`)
   })
 }
 
