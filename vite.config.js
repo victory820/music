@@ -9,7 +9,7 @@ import { registerRoutesPlugin } from './backend/middleware'
 // https://vitejs.dev/config/
 export default defineConfig({
   envDir: './env',
-  base: '/',
+  base: '',
   css: {
     preprocessorOptions: {
       less: {
