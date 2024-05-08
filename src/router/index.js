@@ -16,8 +16,8 @@ console.log(import.meta.env.DEV)
 console.log(import.meta.env.SSR)
 
 const router = createRouter({
-  history: createWebHashHistory(import.meta.env.BASE_URL),
-  // history: createWebHashHistory('/'),
+  // history: createWebHashHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory('/'),
   routes: [
     {
       path: '/',
