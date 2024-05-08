@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const ERR_OK = 0
-const baseURL = import.meta.env.PROD ? 'https://www.nanguan.top/music' : '/'
+const baseURL = import.meta.env.PROD ? 'https://www.nanguan.top/' : '/'
 
 axios.defaults.baseURL = baseURL
 
