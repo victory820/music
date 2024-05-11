@@ -6,7 +6,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 
 import { registerRoutesPlugin } from './backend/middleware'
 
-// https://vitejs.dev/config/
+// 参照https://vitejs.dev/config/
 export default defineConfig({
   envDir: './env',
   base: './',
